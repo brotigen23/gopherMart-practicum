@@ -18,14 +18,15 @@ type userHandler struct {
 	userService *service.UserService
 }
 
-func NewUserHandler(config *config.Config) *userHandler {
+func NewUserHandler(userService *service.UserService, config *config.Config) *userHandler {
 	return &userHandler{
 		Config:      config,
-		userService: service.NewUserService(),
+		userService: userService,
 	}
 }
 
 func (h *userHandler) Register(rw http.ResponseWriter, r *http.Request) {
+	log.Println("Register handler")
 	user, err := utils.UnmarhallUser(r.Body)
 	if err != nil {
 		log.Printf("error: %v", err.Error())
@@ -35,7 +36,8 @@ func (h *userHandler) Register(rw http.ResponseWriter, r *http.Request) {
 
 	// Проверяем наличие логина в БД
 	if h.userService.IsUserExists(user.Login) {
-		// TODO: Уже существует
+		log.Printf("error: %v", ErrUserExists)
+		http.Error(rw, ErrUserExists.Error(), http.StatusConflict)
 		return
 	}
 

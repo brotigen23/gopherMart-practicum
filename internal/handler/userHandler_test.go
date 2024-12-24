@@ -9,13 +9,15 @@ import (
 	"testing"
 
 	"github.com/brotigen23/gopherMart/internal/dto"
+	"github.com/brotigen23/gopherMart/internal/service"
 	"github.com/stretchr/testify/assert"
 )
 
 const target = "localhost:8080/api/user/register"
 
 func TestRegister(t *testing.T) {
-	handler := NewUserHandler(nil)
+	userService := service.NewUserService(nil)
+	handler := NewUserHandler(userService, nil)
 	type args struct {
 		data        dto.User
 		contentType string

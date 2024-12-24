@@ -1,32 +1,48 @@
 package repository
 
 import (
-	"database/sql"
-
-	"github.com/brotigen23/gopherMart/internal/database"
 	"github.com/brotigen23/gopherMart/internal/entity"
-	_ "github.com/lib/pq"
 )
 
-type postgresUserRepository struct {
-	db *sql.DB
+func (r *postgresUserRepository) GetUserByID(id int) (*entity.User, error) {
+	return nil, nil
 }
 
-const migrationPath = "migrations"
-
-func NewPostgresUserRepository(driver string, stringConnection string) (UserRepository, error) {
-	ret := &postgresUserRepository{}
-	db, err := sql.Open(driver, stringConnection)
+func (r *postgresUserRepository) GetUserByLogin(login string) (*entity.User, error) {
+	query := r.db.QueryRow(`SELECT id, login, password, balance FROM Users WHERE login = $1`, login)
+	var ID int
+	var Login string
+	var Password string
+	var Balance float32
+	err := query.Scan(&ID, &Login, &Password, &Balance)
+	if err != nil && err == ErrUserNotFound {
+		return nil, ErrUserNotFound
+	}
 	if err != nil {
 		return nil, err
 	}
-	ret.db = db
-	migrator := database.MustGetNewMigrator(migrationPath)
-	migrator.ApplyMigrations(db)
-	return ret, nil
+	return &entity.User{
+		ID:       ID,
+		Login:    Login,
+		Password: Password,
+		Balance:  Balance,
+	}, nil
 }
 
-func (r *postgresUserRepository) GetUserByID() (*entity.User, error)    { return nil, nil }
-func (r *postgresUserRepository) GetUserByLogin() (*entity.User, error) { return nil, nil }
+func (r *postgresUserRepository) Save(user *entity.User) (*entity.User, error) {
+	query := "INSERT INTO Users(login, password) VALUES($1, $2) RETURNING ID"
+	var (
+		id int
+	)
+	err := r.db.QueryRow(query, user.Login, user.Password).Scan(&id)
+	if err != nil {
+		return nil, err
+	}
 
-func (r *postgresUserRepository) Save(*entity.User) error { return nil }
+	return &entity.User{
+		ID:       id,
+		Login:    user.Login,
+		Password: user.Password,
+		//Balance:  0,
+	}, nil
+}

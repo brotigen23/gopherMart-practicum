@@ -8,6 +8,7 @@ import (
 	"github.com/brotigen23/gopherMart/internal/handler"
 	"github.com/brotigen23/gopherMart/internal/middleware"
 	"github.com/brotigen23/gopherMart/internal/repository"
+	"github.com/brotigen23/gopherMart/internal/service"
 	"github.com/go-chi/chi"
 	chiMiddleware "github.com/go-chi/chi/middleware"
 )
@@ -29,13 +30,13 @@ func (s Server) Run() error {
 	if err != nil {
 		return err
 	}
-	userRepository.GetUserByLogin()
 
 	// TODO: создание сервисов
 	log.Println("Services")
+	userService := service.NewUserService(userRepository)
 	// TODO: создание хендлеров
 	log.Println("Handlers")
-	userHandler := handler.NewUserHandler(nil)
+	userHandler := handler.NewUserHandler(userService, nil)
 
 	// TODO: создание роутера
 	log.Println("Router")
@@ -43,7 +44,7 @@ func (s Server) Run() error {
 	router.Use(chiMiddleware.Logger)
 	router.Use(chiMiddleware.Compress(3, "plain/text", "application/json"))
 
-	router.With(middleware.ValidateUser).Post("/api/user/register", userHandler.Register)
+	router.Post("/api/user/register", userHandler.Register)
 	router.With(middleware.ValidateUser).Post("/api/user/login", userHandler.Login)
 
 	router.With(middleware.Auth).Post("/api/user/orders", userHandler.SaveOrder)

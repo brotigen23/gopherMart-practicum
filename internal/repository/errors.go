@@ -4,7 +4,7 @@ import "errors"
 
 // * Users
 var (
-	ErrUserNotFound = errors.New("user not found")
+	ErrUserNotFound = errors.New("sql: no rows in result set")
 	ErrUserExists   = errors.New("user already exists")
 )
 

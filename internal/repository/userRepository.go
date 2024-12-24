@@ -3,8 +3,8 @@ package repository
 import "github.com/brotigen23/gopherMart/internal/entity"
 
 type UserRepository interface {
-	GetUserByID() (*entity.User, error)
-	GetUserByLogin() (*entity.User, error)
+	GetUserByID(id int) (*entity.User, error)
+	GetUserByLogin(login string) (*entity.User, error)
 
-	Save(*entity.User) error
+	Save(user *entity.User) (*entity.User, error)
 }

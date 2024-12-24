@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"context"
 	"log"
 	"net/http"
 
@@ -9,15 +10,16 @@ import (
 
 func ValidateUser(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
-		body := r.Clone(r.Context())
+		log.Println("ValidationUser")
+		rClone := r.Clone(context.Background())
 
-		if body.Header.Get("Content-Type") != "application/json" {
+		if rClone.Header.Get("Content-Type") != "application/json" {
 			log.Printf("error: %v", "not json")
 			http.Error(rw, ErrContentType.Error(), http.StatusBadRequest)
 			return
 		}
 
-		user, err := utils.UnmarhallUser(body.Body)
+		user, err := utils.UnmarhallUser(rClone.Body)
 		if err != nil {
 			log.Printf("error: %v", err.Error())
 			http.Error(rw, ErrNotValidJSON.Error(), http.StatusBadRequest)
