@@ -3,6 +3,7 @@ package service
 import (
 	"time"
 
+	"github.com/brotigen23/gopherMart/internal/dto"
 	"github.com/brotigen23/gopherMart/internal/entity"
 	"github.com/brotigen23/gopherMart/internal/repository"
 )
@@ -62,4 +63,20 @@ func (s *UserService) SaveOrder(login string, orderNum string) error {
 		return err
 	}
 	return nil
+}
+
+func (s *UserService) GetOrders(login string) ([]dto.Order, error) {
+	ret := []dto.Order{}
+	orders, err := s.repository.GetOrders(login)
+	if err != nil {
+		return nil, err
+	}
+	for _, order := range orders {
+		item := dto.Order{
+			Number:     order.Order,
+			UploadedAt: order.UploadedAt,
+		}
+		ret = append(ret, item)
+	}
+	return ret, nil
 }

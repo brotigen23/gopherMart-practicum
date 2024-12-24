@@ -9,4 +9,5 @@ var (
 	ErrJWT            = errors.New("auth error")
 	ErrWrongLogin     = errors.New("login incorrect")
 	ErrWrongPassword  = errors.New("passwod incorrect")
+	ErrAccrualSystem  = errors.New("accrual server error")
 )

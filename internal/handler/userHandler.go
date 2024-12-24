@@ -137,24 +137,44 @@ func (h *userHandler) SaveOrder(rw http.ResponseWriter, r *http.Request) {
 }
 
 func (h *userHandler) GetOrders(rw http.ResponseWriter, r *http.Request) {
-	resp, err := http.Get(h.Config.AccrualSystemAddress)
+	// Get user's orders
+	userLogin, err := r.Cookie("userLogin")
 	if err != nil {
+		log.Printf("error: %v", ErrJWT.Error())
+		http.Error(rw, ErrJWT.Error(), http.StatusBadRequest)
+		return
+	}
+	orders, err := h.userService.GetOrders(userLogin.Value)
+	if err != nil {
+		log.Printf("error: %v", ErrBadRequest.Error())
+		http.Error(rw, ErrBadRequest.Error(), http.StatusNoContent)
+		return
+	}
+
+	// Check order's status
+	resp, err := http.Get(h.Config.AccrualSystemAddress + "/api/orders")
+	if err != nil {
+		log.Printf("error: %v", ErrAccrualSystem.Error())
+		http.Error(rw, ErrAccrualSystem.Error(), http.StatusBadRequest)
 		return
 	}
 	buf, err := io.ReadAll(resp.Body)
 	if err != nil {
+		log.Printf("error: %v", ErrAccrualSystem.Error())
+		http.Error(rw, ErrAccrualSystem.Error(), http.StatusBadRequest)
 		return
 	}
 
 	log.Println(string(buf))
+	log.Println(orders)
 }
 
 func (h *userHandler) GetBalance(rw http.ResponseWriter, r *http.Request) {
-	userLogin, err := r.Cookie("userLogin")
+	_, err := r.Cookie("userLogin")
 	if err != nil {
 		return
 	}
-	log.Println(userLogin)
+
 }
 
 func (h *userHandler) Withdraw(rw http.ResponseWriter, r *http.Request) {

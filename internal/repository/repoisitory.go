@@ -7,6 +7,7 @@ type Repository interface {
 	GetUserByLogin(login string) (*entity.User, error)
 
 	SaveUser(user *entity.User) (*entity.User, error)
-	GetOrderByID() (*entity.Order, error)
+
+	GetOrders(login string) ([]entity.Order, error)
 	SaveOrder(*entity.Order) (*entity.Order, error)
 }
