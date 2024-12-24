@@ -3,8 +3,8 @@ echo "POST /api/user/register"
 curl -i --location --request POST 'localhost:8080/api/user/register' \
 --header 'Content-Type: application/json' \
 --data '{
-    "login":"11",
-    "password": "11"
+    "login":"211",
+    "password": "121"
 }'
 
 #Orders test

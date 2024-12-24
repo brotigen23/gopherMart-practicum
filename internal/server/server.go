@@ -36,7 +36,7 @@ func (s Server) Run() error {
 	userService := service.NewUserService(userRepository)
 	// TODO: создание хендлеров
 	log.Println("Handlers")
-	userHandler := handler.NewUserHandler(userService, nil)
+	userHandler := handler.NewUserHandler(userService, s.config)
 
 	// TODO: создание роутера
 	log.Println("Router")

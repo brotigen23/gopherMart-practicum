@@ -9,7 +9,7 @@ import (
 type Config struct {
 	RunAdress            string `env:"RUN_ADDRESS" env-default:"localhost:8080"`
 	DatabaseURI          string `env:"DATABASE_URI"`
-	AccrualSystemAddress string `env:"ACCRUAL_SYSTEM_ADDRESS"`
+	AccrualSystemAddress string `env:"ACCRUAL_SYSTEM_ADDRESS" end-default:"localhost:9090"`
 	JWTSecretKey         string `env:"secret_key" env-default:"secret"`
 }
 
