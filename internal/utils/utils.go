@@ -17,7 +17,7 @@ type UserJWTClaims struct {
 	Login string
 }
 
-func UnmarhallUser(r io.ReadCloser) (*dto.User, error) {
+func UnmarhallUserJWT(r io.ReadCloser) (*dto.User, error) {
 	var user dto.User
 	var buffer bytes.Buffer
 	_, err := buffer.ReadFrom(r)
@@ -63,4 +63,8 @@ func GetUserLoginFromJWT(tokenString string, key string) (string, error) {
 	}
 
 	return claims.Login, nil
+}
+
+func IsOrderCorrect(order int) bool {
+	return true
 }

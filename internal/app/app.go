@@ -5,14 +5,16 @@ import (
 
 	"github.com/brotigen23/gopherMart/internal/config"
 	"github.com/brotigen23/gopherMart/internal/server"
+	"github.com/joho/godotenv"
 )
 
 func Run(serverAddr string) error {
-	config, err := config.NewConfig("config.yaml")
+	godotenv.Load()
+	config, err := config.NewConfig()
 	if err != nil {
 		return err
 	}
-
+	log.Println(config)
 	server := server.NewServer(config)
 	err = server.Run()
 	if err != nil {

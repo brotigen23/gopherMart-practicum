@@ -8,13 +8,23 @@ import (
 type UserService struct {
 	// TODO: БД
 	// * Логгер для ошибок
-	userRepository repository.UserRepository
+	userRepository     repository.UserRepository
+	orderRepository    repository.OrderRepository
+	withdrawRepository repository.WithdrawRepository
 }
 
 func NewUserService(repo repository.UserRepository) *UserService {
 	return &UserService{
 		userRepository: repo,
 	}
+}
+
+func (s *UserService) GetUserPasswordByLogin(login string) (string, error) {
+	user, err := s.userRepository.GetUserByLogin(login)
+	if err != nil {
+		return "", err
+	}
+	return user.Password, nil
 }
 
 func (s *UserService) IsUserExists(login string) bool {
@@ -28,11 +38,15 @@ func (s *UserService) IsUserExists(login string) bool {
 	return true
 }
 
-func (s *UserService) Save(login string, password string) error {
+func (s *UserService) SaveUser(login string, password string) error {
 	user := &entity.User{Login: login, Password: password}
 	_, err := s.userRepository.Save(user)
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+func (s *UserService) SaveOrder(login string, order int) error {
 	return nil
 }

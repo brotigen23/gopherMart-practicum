@@ -1,10 +1,10 @@
 package handler
 
 import (
-	"bytes"
 	"io"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/brotigen23/gopherMart/internal/config"
@@ -27,7 +27,7 @@ func NewUserHandler(userService *service.UserService, config *config.Config) *us
 
 func (h *userHandler) Register(rw http.ResponseWriter, r *http.Request) {
 	log.Println("Register handler")
-	user, err := utils.UnmarhallUser(r.Body)
+	user, err := utils.UnmarhallUserJWT(r.Body)
 	if err != nil {
 		log.Printf("error: %v", err.Error())
 		http.Error(rw, ErrInternalServer.Error(), http.StatusInternalServerError)
@@ -42,7 +42,7 @@ func (h *userHandler) Register(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	// Регистрируем новую запись в БД
-	err = h.userService.Save(user.Login, user.Password)
+	err = h.userService.SaveUser(user.Login, user.Password)
 	if err != nil {
 		log.Printf("error: %v", err.Error())
 		http.Error(rw, ErrInternalServer.Error(), http.StatusInternalServerError)
@@ -71,17 +71,28 @@ func (h *userHandler) Register(rw http.ResponseWriter, r *http.Request) {
 }
 
 func (h *userHandler) Login(rw http.ResponseWriter, r *http.Request) {
-	user, err := utils.UnmarhallUser(r.Body)
+	user, err := utils.UnmarhallUserJWT(r.Body)
 	if err != nil {
 		http.Error(rw, "server error", http.StatusInternalServerError)
 		return
 	}
 	//* Проверяем наличие логина в БД и правильность введенного пароля
-	if h.userService.IsUserExists(user.Login) {
-		// TODO: Если не существует то возвращаем
+	if !h.userService.IsUserExists(user.Login) {
+		log.Printf("error: %v", ErrWrongLogin.Error())
+		http.Error(rw, ErrWrongLogin.Error(), http.StatusUnauthorized)
 		return
 	}
-
+	password, err := h.userService.GetUserPasswordByLogin(user.Login)
+	if err != nil {
+		log.Printf("error: %v", err.Error())
+		http.Error(rw, err.Error(), http.StatusUnauthorized)
+		return
+	}
+	if user.Password != password {
+		log.Printf("error: %v", ErrWrongPassword.Error())
+		http.Error(rw, ErrWrongPassword.Error(), http.StatusUnauthorized)
+		return
+	}
 	// Создаем JWT токен
 	expires := time.Minute * 15
 	// TODO: вынести секретный ключ в переменную окружения
@@ -103,29 +114,34 @@ func (h *userHandler) Login(rw http.ResponseWriter, r *http.Request) {
 }
 
 func (h *userHandler) SaveOrder(rw http.ResponseWriter, r *http.Request) {
+	user, err := utils.UnmarhallUserJWT(r.Body)
+	if err != nil {
+		log.Printf("error: %v", ErrJWT.Error())
+		http.Error(rw, ErrJWT.Error(), http.StatusUnauthorized)
+		return
+	}
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		// TODO: обработать ошибку
 		log.Printf("error: %v", err.Error())
 		return
 	}
-
-	// Try to save order
-	resp, err := http.Post("localhost:8080/api/orders", "plain/text", bytes.NewReader(body))
+	order, err := strconv.Atoi(string(body))
 	if err != nil {
+		// TODO: обработать ошибку
+		log.Printf("error: %v", err.Error())
 		return
 	}
-	switch resp.StatusCode {
-	case http.StatusOK:
-		break
-	case http.StatusBadRequest:
-		rw.Write([]byte(resp.Body.Close().Error()))
-		break
+	if !utils.IsOrderCorrect(order) {
+		log.Printf("error: %v", ErrJWT.Error())
+		http.Error(rw, ErrJWT.Error(), http.StatusUnauthorized)
+		return
 	}
+	h.userService.SaveOrder(user.Login, order)
 }
 
 func (h *userHandler) GetOrders(rw http.ResponseWriter, r *http.Request) {
-	resp, err := http.Get("localhost:8080/api/orders")
+	resp, err := http.Get(h.Config.AccrualSystemAddress)
 	if err != nil {
 		return
 	}

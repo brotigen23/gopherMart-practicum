@@ -11,4 +11,5 @@ curl -i --location --request POST 'localhost:8080/api/user/register' \
 echo "POST /api/user/orders"
 curl -i --location --request POST 'localhost:8080/api/user/orders' \
 --header 'Content-Type: application/json' \
---cookie 'token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzQ3MDQxNjIsIkxvZ2luIjoiMTIzIn0.wYMINaAHrZJ00aGsNkft_ndk9D7FZs2EQSliPXdm0Fo' 
+--cookie 'token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzUwNTI2ODgsIkxvZ2luIjoiMTIzIn0.UjnXBcXKQEJzMZg8SwPepqivagD80e8LVHHl7aDWXzc' \
+--data '1111'

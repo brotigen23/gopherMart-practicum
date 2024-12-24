@@ -1,7 +1,5 @@
 # Server configurations
-server:
-  host: "localhost"
-  port: 9090
+
 
 # Database credentials
 database:

@@ -1,37 +1,37 @@
 package config
 
 import (
-	"os"
+	"flag"
 
-	"gopkg.in/yaml.v2"
+	"github.com/ilyakaznacheev/cleanenv"
 )
 
 type Config struct {
-	Server struct {
-		Port string `yaml:"port" env:"PORT" env-default:"8080"`
-		Host string `yaml:"host" env:"PORT" env-default:"8080"`
-	} `yaml:"server"`
-
-	Database struct {
-		Username string `yaml:"user"`
-		Password string `yaml:"pass"`
-	} `yaml:"database"`
-
-	JWTSecretKey string `yaml:"secret_key"`
+	RunAdress            string `env:"RUN_ADDRESS" env-default:"localhost:8080"`
+	DatabaseURI          string `env:"DATABASE_URI"`
+	AccrualSystemAddress string `env:"ACCRUAL_SYSTEM_ADDRESS"`
+	JWTSecretKey         string `env:"secret_key" env-default:"secret"`
 }
 
-func NewConfig(filePath string) (*Config, error) {
-	f, err := os.Open(filePath)
-	if err != nil {
-		return nil, err
-	}
-	defer f.Close()
+func NewConfig() (*Config, error) {
+	// Read env
+	cfg := &Config{}
+	cleanenv.ReadEnv(cfg)
+	// Read flags
+	a := flag.String("a", "", "server address")          // RUN_ADDRESS
+	d := flag.String("d", "", "database connect string") // DATABASE_URI
+	r := flag.String("r", "", "accrual system address")  // ACCRUAL_SYSTEM_ADDRESS
 
-	var cfg *Config
-	decoder := yaml.NewDecoder(f)
-	err = decoder.Decode(&cfg)
-	if err != nil {
-		return nil, err
+	flag.Parse()
+	if *a != "" {
+		cfg.RunAdress = *a
 	}
+	if *d != "" {
+		cfg.DatabaseURI = *d
+	}
+	if *r != "" {
+		cfg.AccrualSystemAddress = *r
+	}
+
 	return cfg, nil
 }

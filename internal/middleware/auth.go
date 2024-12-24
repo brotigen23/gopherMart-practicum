@@ -7,7 +7,7 @@ import (
 	"github.com/brotigen23/gopherMart/internal/utils"
 )
 
-const JWTSecretKey = "secret_key"
+var JWTSecretKey = "secret"
 
 func Auth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {

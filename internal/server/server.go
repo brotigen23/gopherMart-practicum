@@ -26,7 +26,7 @@ func NewServer(config *config.Config) *Server {
 func (s Server) Run() error {
 	// TODO: создание подключения к БД
 	log.Println("Repository")
-	userRepository, err := repository.NewPostgresUserRepository("postgres", "host=localhost port=5432 user=myuser password=1234 dbname=mydb sslmode=disable")
+	userRepository, err := repository.NewPostgresUserRepository("postgres", s.config.DatabaseURI)
 	if err != nil {
 		return err
 	}
@@ -45,7 +45,7 @@ func (s Server) Run() error {
 	router.Use(chiMiddleware.Compress(3, "plain/text", "application/json"))
 
 	router.Post("/api/user/register", userHandler.Register)
-	router.With(middleware.ValidateUser).Post("/api/user/login", userHandler.Login)
+	router.Post("/api/user/login", userHandler.Login)
 
 	router.With(middleware.Auth).Post("/api/user/orders", userHandler.SaveOrder)
 	router.With(middleware.Auth).Get("/api/user/orders", userHandler.GetOrders)
@@ -56,7 +56,7 @@ func (s Server) Run() error {
 	router.With(middleware.Auth).Get("/api/user/withdrawals", userHandler.GetWithDrawals)
 
 	serv := &http.Server{
-		Addr:    s.config.Server.Host + ":" + s.config.Server.Port,
+		Addr:    s.config.RunAdress,
 		Handler: router,
 	}
 
