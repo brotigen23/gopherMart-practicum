@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"strconv"
 	"time"
 
 	"github.com/brotigen23/gopherMart/internal/dto"
@@ -65,6 +66,11 @@ func GetUserLoginFromJWT(tokenString string, key string) (string, error) {
 	return claims.Login, nil
 }
 
-func IsOrderCorrect(order int) bool {
+func IsOrderCorrect(order string) bool {
+	o, err := strconv.Atoi(order)
+	if err != nil {
+		return false
+	}
+	log.Println(o)
 	return true
 }

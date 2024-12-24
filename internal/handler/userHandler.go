@@ -4,7 +4,6 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/brotigen23/gopherMart/internal/config"
@@ -50,9 +49,9 @@ func (h *userHandler) Register(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	// Создаем JWT токен
-	expires := time.Minute * 15
+	expires := time.Hour * 1024
 	// TODO: вынести секретный ключ в переменную окружения
-	JWTSecretKey := "secret_key"
+	JWTSecretKey := "secret"
 	jwtString, err := utils.BuildJWTString(user.Login, JWTSecretKey, expires)
 	if err != nil {
 		log.Printf("error: %v", err.Error())
@@ -126,18 +125,14 @@ func (h *userHandler) SaveOrder(rw http.ResponseWriter, r *http.Request) {
 		log.Printf("error: %v", err.Error())
 		return
 	}
-	order, err := strconv.Atoi(string(body))
-	if err != nil {
-		// TODO: обработать ошибку
-		log.Printf("error: %v", err.Error())
-		return
-	}
+	order := string(body)
 	if !utils.IsOrderCorrect(order) {
 		log.Printf("error: %v", ErrJWT.Error())
 		http.Error(rw, ErrJWT.Error(), http.StatusUnauthorized)
 		return
 	}
 	h.userService.SaveOrder(user.Login, order)
+	rw.WriteHeader(http.StatusOK)
 }
 
 func (h *userHandler) GetOrders(rw http.ResponseWriter, r *http.Request) {
