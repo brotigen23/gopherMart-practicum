@@ -8,14 +8,14 @@ import (
 	_ "github.com/lib/pq"
 )
 
-type postgresUserRepository struct {
+type postgresRepository struct {
 	db *sql.DB
 }
 
 const migrationPath = "migrations"
 
-func NewPostgresUserRepository(driver string, stringConnection string) (UserRepository, error) {
-	ret := &postgresUserRepository{}
+func NewPostgresUserRepository(driver string, stringConnection string) (Repository, error) {
+	ret := &postgresRepository{}
 	db, err := sql.Open(driver, stringConnection)
 	if err != nil {
 		log.Println(err)

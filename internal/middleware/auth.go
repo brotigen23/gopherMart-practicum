@@ -45,6 +45,7 @@ func Auth(secretKey string) func(http.Handler) http.Handler {
 				return
 			}
 			r.AddCookie(&http.Cookie{Name: "userLogin", Value: user})
+			next.ServeHTTP(rw, r)
 		})
 	}
 }

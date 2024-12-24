@@ -10,19 +10,17 @@ import (
 type UserService struct {
 	// TODO: БД
 	// * Логгер для ошибок
-	userRepository     repository.UserRepository
-	orderRepository    repository.OrderRepository
-	withdrawRepository repository.WithdrawRepository
+	repository repository.Repository
 }
 
-func NewUserService(repo repository.UserRepository) *UserService {
+func NewUserService(userRepo repository.Repository) *UserService {
 	return &UserService{
-		userRepository: repo,
+		repository: userRepo,
 	}
 }
 
 func (s *UserService) GetUserPasswordByLogin(login string) (string, error) {
-	user, err := s.userRepository.GetUserByLogin(login)
+	user, err := s.repository.GetUserByLogin(login)
 	if err != nil {
 		return "", err
 	}
@@ -30,7 +28,7 @@ func (s *UserService) GetUserPasswordByLogin(login string) (string, error) {
 }
 
 func (s *UserService) IsUserExists(login string) bool {
-	_, err := s.userRepository.GetUserByLogin(login)
+	_, err := s.repository.GetUserByLogin(login)
 	if err != nil && err == repository.ErrUserNotFound {
 		return false
 	}
@@ -42,7 +40,7 @@ func (s *UserService) IsUserExists(login string) bool {
 
 func (s *UserService) SaveUser(login string, password string) error {
 	user := &entity.User{Login: login, Password: password}
-	_, err := s.userRepository.Save(user)
+	_, err := s.repository.SaveUser(user)
 	if err != nil {
 		return err
 	}
@@ -50,7 +48,7 @@ func (s *UserService) SaveUser(login string, password string) error {
 }
 
 func (s *UserService) SaveOrder(login string, orderNum string) error {
-	user, err := s.userRepository.GetUserByLogin(login)
+	user, err := s.repository.GetUserByLogin(login)
 	if err != nil {
 		return err
 	}
@@ -59,7 +57,7 @@ func (s *UserService) SaveOrder(login string, orderNum string) error {
 		Order:      orderNum,
 		UploadedAt: time.Now(),
 	}
-	_, err = s.orderRepository.Save(order)
+	_, err = s.repository.SaveOrder(order)
 	if err != nil {
 		return err
 	}

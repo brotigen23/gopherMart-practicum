@@ -4,11 +4,11 @@ import (
 	"github.com/brotigen23/gopherMart/internal/entity"
 )
 
-func (r *postgresUserRepository) GetUserByID(id int) (*entity.User, error) {
+func (r *postgresRepository) GetUserByID(id int) (*entity.User, error) {
 	return nil, nil
 }
 
-func (r *postgresUserRepository) GetUserByLogin(login string) (*entity.User, error) {
+func (r *postgresRepository) GetUserByLogin(login string) (*entity.User, error) {
 	query := r.db.QueryRow(`SELECT id, login, password, balance FROM Users WHERE login = $1`, login)
 	var ID int
 	var Login string
@@ -29,7 +29,7 @@ func (r *postgresUserRepository) GetUserByLogin(login string) (*entity.User, err
 	}, nil
 }
 
-func (r *postgresUserRepository) Save(user *entity.User) (*entity.User, error) {
+func (r *postgresRepository) SaveUser(user *entity.User) (*entity.User, error) {
 	query := "INSERT INTO Users(login, password) VALUES($1, $2) RETURNING ID"
 	var (
 		id int

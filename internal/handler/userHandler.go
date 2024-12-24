@@ -113,7 +113,7 @@ func (h *userHandler) Login(rw http.ResponseWriter, r *http.Request) {
 }
 
 func (h *userHandler) SaveOrder(rw http.ResponseWriter, r *http.Request) {
-	user, err := utils.UnmarhallUserJWT(r.Body)
+	user, err := r.Cookie("userLogin")
 	if err != nil {
 		log.Printf("error: %v", ErrJWT.Error())
 		http.Error(rw, ErrJWT.Error(), http.StatusUnauthorized)
@@ -123,16 +123,17 @@ func (h *userHandler) SaveOrder(rw http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		// TODO: обработать ошибку
 		log.Printf("error: %v", err.Error())
+		http.Error(rw, ErrBadRequest.Error(), http.StatusBadRequest)
 		return
 	}
 	order := string(body)
 	if !utils.IsOrderCorrect(order) {
 		log.Printf("error: %v", ErrJWT.Error())
-		http.Error(rw, ErrJWT.Error(), http.StatusUnauthorized)
+		http.Error(rw, ErrJWT.Error(), http.StatusBadRequest)
 		return
 	}
-	h.userService.SaveOrder(user.Login, order)
-	rw.WriteHeader(http.StatusOK)
+	h.userService.SaveOrder(user.Value, order)
+	rw.WriteHeader(http.StatusAccepted)
 }
 
 func (h *userHandler) GetOrders(rw http.ResponseWriter, r *http.Request) {
