@@ -36,6 +36,24 @@ func (r *postgresRepository) GetOrders(login string) ([]entity.Order, error) {
 	}
 	return ret, nil
 }
+func (r *postgresRepository) GetOrderByNumber(orderNum string) (*entity.Order, error) {
+	query := r.db.QueryRow(`SELECT id, user_id, "order", uploaded_at FROM Orders WHERE "order" = $1`, orderNum)
+	var ID int
+	var UserID int
+	var OrderNum string
+	var UploadedAt time.Time
+	err := query.Scan(&ID, &UserID, &OrderNum, &UploadedAt)
+	if err != nil {
+		return nil, err
+	}
+	return &entity.Order{
+		ID:         ID,
+		UserID:     UserID,
+		Order:      OrderNum,
+		UploadedAt: UploadedAt,
+	}, nil
+}
+
 func (r *postgresRepository) SaveOrder(order *entity.Order) (*entity.Order, error) {
 	query := `INSERT INTO Orders(user_id, "order", uploaded_at) VALUES($1, $2, $3) RETURNING ID`
 	time := time.Now()

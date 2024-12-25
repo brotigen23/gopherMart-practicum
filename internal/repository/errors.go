@@ -10,6 +10,6 @@ var (
 
 // * Orders
 var (
-	ErrOrderNotFound = errors.New("order not found")
+	ErrOrderNotFound = errors.New("sql: no rows in result set")
 	ErrOrderNotValid = errors.New("order not valid")
 )

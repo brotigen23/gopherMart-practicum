@@ -1,6 +1,8 @@
 package service
 
 import (
+	"errors"
+	"log"
 	"time"
 
 	"github.com/brotigen23/gopherMart/internal/dto"
@@ -30,7 +32,7 @@ func (s *UserService) GetUserPasswordByLogin(login string) (string, error) {
 
 func (s *UserService) IsUserExists(login string) bool {
 	_, err := s.repository.GetUserByLogin(login)
-	if err != nil && err == repository.ErrUserNotFound {
+	if err != nil && errors.Is(err, repository.ErrOrderNotFound) {
 		return false
 	}
 	if err != nil {
@@ -49,16 +51,33 @@ func (s *UserService) SaveUser(login string, password string) error {
 }
 
 func (s *UserService) SaveOrder(login string, orderNum string) error {
+	// Получаем пользователя
 	user, err := s.repository.GetUserByLogin(login)
 	if err != nil {
 		return err
 	}
-	order := &entity.Order{
+	// Проверяем наличие заказа в системе
+	order, err := s.repository.GetOrderByNumber(orderNum)
+	// Если заказа нет то продолжаем сохранять
+	if err != nil && err.Error() != repository.ErrOrderNotFound.Error() {
+		log.Println(err.Error())
+		return err
+	}
+	// Если заказ есть
+	if order != nil {
+		// Проверям сохранен ли он тем пользователем
+		if order.UserID != user.ID {
+			return ErrOrderSavedByOtherUser
+		}
+		return ErrOrderAlreadySave
+	}
+
+	orderToSave := &entity.Order{
 		UserID:     user.ID,
 		Order:      orderNum,
 		UploadedAt: time.Now(),
 	}
-	_, err = s.repository.SaveOrder(order)
+	_, err = s.repository.SaveOrder(orderToSave)
 	if err != nil {
 		return err
 	}

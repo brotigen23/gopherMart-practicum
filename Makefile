@@ -24,4 +24,6 @@ mock:
 	~/go/bin/mockgen -destination=internal/repository/mocks/mockOrderRepository.go -package=mocks github.com/brotigen23/gopherMart/internal/repository OrderRepository
 	~/go/bin/mockgen -destination=internal/repository/mocks/mock_user.go -package=mocks github.com/brotigen23/gopherMart/internal/repository UserRepository
 
+accrualData:
+	./internal/test/accrualData.sh
 

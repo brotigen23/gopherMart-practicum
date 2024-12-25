@@ -116,7 +116,7 @@ func (h *userHandler) Login(rw http.ResponseWriter, r *http.Request) {
 func (h *userHandler) SaveOrder(rw http.ResponseWriter, r *http.Request) {
 	user, err := r.Cookie("userLogin")
 	if err != nil {
-		log.Printf("error: %v", ErrJWT.Error())
+		log.Printf("error: %v", err)
 		http.Error(rw, ErrJWT.Error(), http.StatusUnauthorized)
 		return
 	}
@@ -128,13 +128,23 @@ func (h *userHandler) SaveOrder(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 	order := string(body)
-	if !utils.IsOrderCorrect(order) {
-		log.Printf("error: %v", ErrJWT.Error())
-		http.Error(rw, ErrJWT.Error(), http.StatusBadRequest)
+	if utils.IsOrderCorrect(order) {
+		log.Printf("error: %v", ErrBadOrderNumber.Error())
+		http.Error(rw, ErrBadOrderNumber.Error(), http.StatusUnprocessableEntity)
 		return
 	}
-	h.userService.SaveOrder(user.Value, order)
-	rw.WriteHeader(http.StatusAccepted)
+
+	err = h.userService.SaveOrder(user.Value, order)
+	switch err {
+	case nil:
+		rw.WriteHeader(http.StatusAccepted)
+	case service.ErrOrderAlreadySave:
+		http.Error(rw, service.ErrOrderAlreadySave.Error(), http.StatusOK)
+	case service.ErrOrderSavedByOtherUser:
+		http.Error(rw, service.ErrOrderSavedByOtherUser.Error(), http.StatusConflict)
+	default:
+		// Другая ошибка
+	}
 	// create goroutine to check order status
 }
 

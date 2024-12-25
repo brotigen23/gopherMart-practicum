@@ -85,6 +85,18 @@ func IsOrderCorrect(order string) bool {
 	if err != nil {
 		return false
 	}
-	log.Println(o)
-	return true
+
+	var luhn int
+	for i := 0; o > 0; i++ {
+		tmp := o % 10
+		if i%2 == 0 {
+			tmp = tmp * 2
+			if tmp > 9 {
+				tmp = tmp%10 + tmp/10
+			}
+		}
+		luhn += tmp
+		o = o / 10
+	}
+	return luhn%10 == 0
 }
