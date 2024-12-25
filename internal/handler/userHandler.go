@@ -170,6 +170,7 @@ func (h *userHandler) GetOrders(rw http.ResponseWriter, r *http.Request) {
 			return
 		}
 		o, err := utils.UnmarhallOrder(resp.Body)
+		defer resp.Body.Close()
 		if err != nil {
 			http.Error(rw, ErrAccrualSystem.Error(), http.StatusBadRequest)
 			return
@@ -189,10 +190,24 @@ func (h *userHandler) GetOrders(rw http.ResponseWriter, r *http.Request) {
 }
 
 func (h *userHandler) GetBalance(rw http.ResponseWriter, r *http.Request) {
-	_, err := r.Cookie("userLogin")
+	userLogin, err := r.Cookie("userLogin")
+	if err != nil {
+		http.Error(rw, err.Error(), http.StatusBadRequest)
+		return
+	}
+	balance, err := h.userService.GetUserBalance(userLogin.Value)
+	http.Error(rw, err.Error(), http.StatusNoContent)
 	if err != nil {
 		return
 	}
+	resp, err := json.Marshal(balance)
+	if err != nil {
+		http.Error(rw, err.Error(), http.StatusBadRequest)
+		return
+	}
+	rw.Header().Set("Content-Type", "application/json")
+	rw.WriteHeader(http.StatusOK)
+	rw.Write(resp)
 
 }
 

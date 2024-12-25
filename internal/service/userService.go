@@ -22,6 +22,28 @@ func NewUserService(userRepo repository.Repository) *UserService {
 	}
 }
 
+func (s *UserService) GetUserBalance(login string) (*dto.Balance, error) {
+	ret := &dto.Balance{}
+	// Current
+	user, err := s.repository.GetUserByLogin(login)
+	if err != nil {
+		return nil, err
+	}
+	ret.Current = user.Balance
+
+	// Withdrawals
+	withdrawals, err := s.repository.GetUserWithdrawals(user)
+	if err != nil {
+		return nil, err
+	}
+	var withdraw float32
+	for _, w := range withdrawals {
+		withdraw += w.Sum
+	}
+	ret.Withdrawn = withdraw
+	return ret, nil
+}
+
 func (s *UserService) GetUserPasswordByLogin(login string) (string, error) {
 	user, err := s.repository.GetUserByLogin(login)
 	if err != nil {
