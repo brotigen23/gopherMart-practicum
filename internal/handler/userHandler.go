@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"encoding/json"
 	"io"
 	"log"
 	"net/http"
@@ -134,6 +135,7 @@ func (h *userHandler) SaveOrder(rw http.ResponseWriter, r *http.Request) {
 	}
 	h.userService.SaveOrder(user.Value, order)
 	rw.WriteHeader(http.StatusAccepted)
+	// create goroutine to check order status
 }
 
 func (h *userHandler) GetOrders(rw http.ResponseWriter, r *http.Request) {
@@ -150,23 +152,33 @@ func (h *userHandler) GetOrders(rw http.ResponseWriter, r *http.Request) {
 		http.Error(rw, ErrBadRequest.Error(), http.StatusNoContent)
 		return
 	}
-
-	// Check order's status
-	resp, err := http.Get(h.Config.AccrualSystemAddress + "/api/orders")
+	for i, order := range orders {
+		resp, err := http.Get(h.Config.AccrualSystemAddress + "/api/orders/" + order.Number)
+		// Check order's status
+		if err != nil {
+			log.Printf("error: %v", ErrAccrualSystem.Error())
+			http.Error(rw, ErrAccrualSystem.Error(), http.StatusBadRequest)
+			return
+		}
+		o, err := utils.UnmarhallOrder(resp.Body)
+		if err != nil {
+			log.Printf("error: %v", ErrAccrualSystem.Error())
+			http.Error(rw, ErrAccrualSystem.Error(), http.StatusBadRequest)
+			return
+		}
+		orders[i].Status = o.Status
+		orders[i].Accrual = o.Accrual
+	}
+	resp, err := json.Marshal(orders)
 	if err != nil {
 		log.Printf("error: %v", ErrAccrualSystem.Error())
 		http.Error(rw, ErrAccrualSystem.Error(), http.StatusBadRequest)
 		return
 	}
-	buf, err := io.ReadAll(resp.Body)
-	if err != nil {
-		log.Printf("error: %v", ErrAccrualSystem.Error())
-		http.Error(rw, ErrAccrualSystem.Error(), http.StatusBadRequest)
-		return
-	}
 
-	log.Println(string(buf))
-	log.Println(orders)
+	rw.Header().Set("Content-Type", "application/json")
+	rw.WriteHeader(http.StatusOK)
+	rw.Write(resp)
 }
 
 func (h *userHandler) GetBalance(rw http.ResponseWriter, r *http.Request) {

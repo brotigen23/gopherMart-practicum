@@ -33,7 +33,21 @@ func UnmarhallUserJWT(r io.ReadCloser) (*dto.User, error) {
 	}
 	return &user, nil
 }
-
+func UnmarhallOrder(r io.ReadCloser) (*dto.Order, error) {
+	var order dto.Order
+	var buffer bytes.Buffer
+	_, err := buffer.ReadFrom(r)
+	if err != nil {
+		// TODO: обработать ошибку
+		log.Printf("error: %v", err.Error())
+		return nil, err
+	}
+	if err = json.Unmarshal(buffer.Bytes(), &order); err != nil {
+		log.Printf("error: %v", err.Error())
+		return nil, err
+	}
+	return &order, nil
+}
 func BuildJWTString(login string, key string, expires time.Duration) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &UserJWTClaims{
 		RegisteredClaims: jwt.RegisteredClaims{
