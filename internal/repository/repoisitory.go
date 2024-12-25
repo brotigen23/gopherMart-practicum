@@ -13,6 +13,7 @@ type Repository interface {
 	//Orders
 	GetOrders(login string) ([]entity.Order, error)
 	GetOrderByNumber(orderNum string) (*entity.Order, error)
+	UpdateOrderStatus(status string, order string) error
 
 	SaveOrder(*entity.Order) (*entity.Order, error)
 

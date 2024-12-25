@@ -62,6 +62,9 @@ func (s *UserService) IsUserExists(login string) bool {
 	}
 	return true
 }
+func (s *UserService) UpdateUserBalance(sum float32) error {
+	return nil
+}
 
 func (s *UserService) SaveUser(login string, password string) error {
 	user := &entity.User{Login: login, Password: password}
@@ -120,4 +123,9 @@ func (s *UserService) GetOrders(login string) ([]dto.Order, error) {
 		ret = append(ret, item)
 	}
 	return ret, nil
+}
+
+func (s *UserService) UpdateOrderStatus(status string, order string) error {
+	s.repository.UpdateOrderStatus(status, order)
+	return nil
 }

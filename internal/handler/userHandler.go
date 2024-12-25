@@ -146,6 +146,36 @@ func (h *userHandler) SaveOrder(rw http.ResponseWriter, r *http.Request) {
 		// Другая ошибка
 	}
 	// create goroutine to check order status
+	go func(s *service.UserService, accrualAddress string, user string, order string) {
+		for {
+			time.Sleep(time.Second * 2)
+			resp, err := http.Get(accrualAddress + "/api/orders/" + order)
+			if err != nil {
+				return
+			}
+			o, err := utils.UnmarhallOrder(resp.Body)
+			defer resp.Body.Close()
+			if err != nil {
+				return
+			}
+			switch o.Status {
+			case "PROCCESSED":
+				// Запись в БД
+				// Обновить статус заказа
+				s.UpdateOrderStatus(o.Status, o.Number)
+				// Добавить баллы пользователю
+				s.UpdateUserBalance(o.Accrual)
+			case "INVALID":
+				// Запись в БД без обновления баланса
+				// Обновить статус заказа
+				s.UpdateOrderStatus(o.Status, o.Number)
+			case "PROCCESSING", "REGISTERED":
+				// Продолжаем опрашивать сервер
+			default:
+				return
+			}
+		}
+	}(h.userService, h.Config.AccrualSystemAddress, user.Value, order)
 }
 
 func (h *userHandler) GetOrders(rw http.ResponseWriter, r *http.Request) {
