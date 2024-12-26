@@ -26,8 +26,7 @@ func NewUserHandler(userService *service.UserService, config *config.Config) *us
 }
 
 func (h *userHandler) Register(rw http.ResponseWriter, r *http.Request) {
-	log.Println("Register handler")
-	user, err := utils.UnmarhallUserJWT(r.Body)
+	user, err := utils.UnmarhallUser(r.Body)
 	if err != nil {
 		log.Printf("error: %v", err.Error())
 		http.Error(rw, ErrInternalServer.Error(), http.StatusInternalServerError)
@@ -51,9 +50,7 @@ func (h *userHandler) Register(rw http.ResponseWriter, r *http.Request) {
 
 	// Создаем JWT токен
 	expires := time.Hour * 1024
-	// TODO: вынести секретный ключ в переменную окружения
-	JWTSecretKey := "secret"
-	jwtString, err := utils.BuildJWTString(user.Login, JWTSecretKey, expires)
+	jwtString, err := utils.BuildJWTString(user.Login, h.Config.JWTSecretKey, expires)
 	if err != nil {
 		log.Printf("error: %v", err.Error())
 		http.Error(rw, ErrInternalServer.Error(), http.StatusInternalServerError)
@@ -71,7 +68,7 @@ func (h *userHandler) Register(rw http.ResponseWriter, r *http.Request) {
 }
 
 func (h *userHandler) Login(rw http.ResponseWriter, r *http.Request) {
-	user, err := utils.UnmarhallUserJWT(r.Body)
+	user, err := utils.UnmarhallUser(r.Body)
 	if err != nil {
 		http.Error(rw, "server error", http.StatusInternalServerError)
 		return
@@ -94,10 +91,8 @@ func (h *userHandler) Login(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Создаем JWT токен
-	expires := time.Minute * 15
-	// TODO: вынести секретный ключ в переменную окружения
-	JWTSecretKey := "secret_key"
-	jwtString, err := utils.BuildJWTString(user.Login, JWTSecretKey, expires)
+	expires := time.Hour * 1024
+	jwtString, err := utils.BuildJWTString(user.Login, h.Config.JWTSecretKey, expires)
 	if err != nil {
 		log.Printf("error: %v", err.Error())
 		return
@@ -148,17 +143,17 @@ func (h *userHandler) SaveOrder(rw http.ResponseWriter, r *http.Request) {
 		log.Println(err.Error())
 		return
 	}
-	log.Println("order is saved")
 	// create goroutine to check order status
 	go func(s *service.UserService, accrualAddress string, userLogin string, order string) {
 		log.Println("GOROUTINE")
 		for {
-			time.Sleep(time.Second * 2)
+			time.Sleep(time.Second)
 			resp, err := http.Get(accrualAddress + "/api/orders/" + order)
 			if err != nil {
 				log.Println(err.Error())
 				return
 			}
+			defer resp.Body.Close()
 			o, err := utils.UnmarhallOrder(resp.Body)
 			if err != nil {
 				log.Println(err.Error())
@@ -180,7 +175,6 @@ func (h *userHandler) SaveOrder(rw http.ResponseWriter, r *http.Request) {
 			default:
 				return
 			}
-			resp.Body.Close()
 		}
 	}(h.userService, h.Config.AccrualSystemAddress, user.Value, order)
 }

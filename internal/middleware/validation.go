@@ -19,7 +19,7 @@ func ValidateUser(next http.Handler) http.Handler {
 			return
 		}
 
-		user, err := utils.UnmarhallUserJWT(rClone.Body)
+		user, err := utils.UnmarhallUser(rClone.Body)
 		if err != nil {
 			log.Printf("error: %v", err.Error())
 			http.Error(rw, ErrNotValidJSON.Error(), http.StatusBadRequest)

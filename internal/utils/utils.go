@@ -18,7 +18,7 @@ type UserJWTClaims struct {
 	Login string
 }
 
-func UnmarhallUserJWT(r io.ReadCloser) (*dto.User, error) {
+func UnmarhallUser(r io.ReadCloser) (*dto.User, error) {
 	var user dto.User
 	var buffer bytes.Buffer
 	_, err := buffer.ReadFrom(r)
