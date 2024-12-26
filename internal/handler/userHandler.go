@@ -121,13 +121,11 @@ func (h *userHandler) SaveOrder(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 	order := string(body)
-	/*
-		if !utils.IsOrderCorrect(order) {
-			log.Printf("error: %v", ErrBadOrderNumber.Error())
-			http.Error(rw, ErrBadOrderNumber.Error(), http.StatusUnprocessableEntity)
-			return
-		}
-	*/
+	if !utils.IsOrderCorrect(order) {
+		log.Printf("error: %v", ErrBadOrderNumber.Error())
+		http.Error(rw, ErrBadOrderNumber.Error(), http.StatusUnprocessableEntity)
+		return
+	}
 
 	err = h.userService.SaveOrder(userLogin.Value, order)
 	switch err {
