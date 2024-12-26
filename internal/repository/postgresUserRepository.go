@@ -47,10 +47,10 @@ func (r *postgresRepository) SaveUser(user *entity.User) (*entity.User, error) {
 	}, nil
 }
 
-func (r *postgresRepository) UpdateUserBalance(sum float32) error {
-	query := "UPDATE Users SET balance = balance + $1"
+func (r *postgresRepository) UpdateUserBalance(user *entity.User, sum float32) error {
+	query := "UPDATE Users SET balance = balance + $1 WHERE id = $2"
 
-	_, err := r.db.Exec(query, sum)
+	_, err := r.db.Exec(query, sum, user.ID)
 
 	if err != nil {
 		return err

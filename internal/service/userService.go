@@ -62,8 +62,12 @@ func (s *UserService) IsUserExists(login string) bool {
 	}
 	return true
 }
-func (s *UserService) UpdateUserBalance(sum float32) error {
-	return nil
+func (s *UserService) UpdateUserBalance(userLogin string, sum float32) error {
+	user, err := s.repository.GetUserByLogin(userLogin)
+	if err != nil {
+		return err
+	}
+	return s.repository.UpdateUserBalance(user, sum)
 }
 
 func (s *UserService) SaveUser(login string, password string) error {

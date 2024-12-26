@@ -8,7 +8,7 @@ type Repository interface {
 	GetUserByLogin(login string) (*entity.User, error)
 
 	SaveUser(user *entity.User) (*entity.User, error)
-	UpdateUserBalance(sum float32) error
+	UpdateUserBalance(user *entity.User, sum float32) error
 
 	//Orders
 	GetOrders(login string) ([]entity.Order, error)

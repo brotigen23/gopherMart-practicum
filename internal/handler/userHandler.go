@@ -140,40 +140,47 @@ func (h *userHandler) SaveOrder(rw http.ResponseWriter, r *http.Request) {
 		rw.WriteHeader(http.StatusAccepted)
 	case service.ErrOrderAlreadySave:
 		http.Error(rw, service.ErrOrderAlreadySave.Error(), http.StatusOK)
+		return
 	case service.ErrOrderSavedByOtherUser:
 		http.Error(rw, service.ErrOrderSavedByOtherUser.Error(), http.StatusConflict)
+		return
 	default:
-		// Другая ошибка
+		log.Println(err.Error())
+		return
 	}
+	log.Println("order is saved")
 	// create goroutine to check order status
-	go func(s *service.UserService, accrualAddress string, user string, order string) {
+	go func(s *service.UserService, accrualAddress string, userLogin string, order string) {
+		log.Println("GOROUTINE")
 		for {
 			time.Sleep(time.Second * 2)
 			resp, err := http.Get(accrualAddress + "/api/orders/" + order)
 			if err != nil {
+				log.Println(err.Error())
 				return
 			}
 			o, err := utils.UnmarhallOrder(resp.Body)
-			defer resp.Body.Close()
 			if err != nil {
+				log.Println(err.Error())
 				return
 			}
+			log.Println(o)
 			switch o.Status {
-			case "PROCCESSED":
-				// Запись в БД
-				// Обновить статус заказа
+			case "PROCESSED":
+				log.Println("PROCESSED")
 				s.UpdateOrderStatus(o.Status, o.Number)
-				// Добавить баллы пользователю
-				s.UpdateUserBalance(o.Accrual)
+				s.UpdateUserBalance(userLogin, o.Accrual)
+				return
 			case "INVALID":
-				// Запись в БД без обновления баланса
-				// Обновить статус заказа
+				log.Println("INVALID")
 				s.UpdateOrderStatus(o.Status, o.Number)
+				return
 			case "PROCCESSING", "REGISTERED":
-				// Продолжаем опрашивать сервер
+				log.Println("PROCCESSING/REGISTERED")
 			default:
 				return
 			}
+			resp.Body.Close()
 		}
 	}(h.userService, h.Config.AccrualSystemAddress, user.Value, order)
 }
