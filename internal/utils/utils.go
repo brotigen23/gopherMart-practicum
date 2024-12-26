@@ -79,20 +79,20 @@ func GetUserLoginFromJWT(tokenString string, key string) (string, error) {
 	return claims.Login, nil
 }
 
+// 38215667007
 func IsOrderCorrect(order string) bool {
-
 	n := len(order)
 	number := 0
 	result := 0
 	for i := 0; i < n; i++ {
 		number = int(order[i]) - '0'
-		if i%2 != 0 {
+		if (i+1)%2 != 0 {
 			result += number
 			continue
 		}
 		number *= 2
 		if number > 9 {
-			number -= 9
+			number = number/10 + number%10
 		}
 		result += number
 	}
