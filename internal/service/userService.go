@@ -129,7 +129,3 @@ func (s *UserService) GetOrders(login string) ([]dto.Order, error) {
 	return ret, nil
 }
 
-func (s *UserService) UpdateOrderStatus(status string, order string) error {
-	s.repository.UpdateOrderStatus(status, order)
-	return nil
-}

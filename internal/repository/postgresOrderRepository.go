@@ -72,12 +72,3 @@ func (r *postgresRepository) SaveOrder(order *entity.Order) (*entity.Order, erro
 		UploadedAt: time,
 	}, nil
 }
-
-func (r *postgresRepository) UpdateOrderStatus(status string, order string) error {
-	query := `UPDATE Orders SET status = $1 WHERE order = $2`
-	_, err := r.db.Exec(query, status, order)
-	if err != nil {
-		return err
-	}
-	return nil
-}

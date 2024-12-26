@@ -182,15 +182,11 @@ func (h *userHandler) SaveOrder(rw http.ResponseWriter, r *http.Request) {
 			switch o.Status {
 			case "PROCESSED":
 				log.Println("PROCESSED")
-				s.UpdateOrderStatus(o.Status, o.Number)
 				s.UpdateUserBalance(userLogin, o.Accrual)
 				return
 			case "INVALID":
-				log.Println("INVALID")
-				s.UpdateOrderStatus(o.Status, o.Number)
 				return
 			case "PROCCESSING", "REGISTERED":
-				log.Println("PROCCESSING/REGISTERED")
 			default:
 				return
 			}
