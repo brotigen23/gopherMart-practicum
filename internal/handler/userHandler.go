@@ -151,7 +151,6 @@ func (h *userHandler) SaveOrder(rw http.ResponseWriter, r *http.Request) {
 				log.Println(err.Error())
 				return
 			}
-			defer resp.Body.Close()
 			o, err := utils.UnmarhallOrder(resp.Body)
 			if err != nil {
 				log.Println(err.Error())
@@ -173,6 +172,7 @@ func (h *userHandler) SaveOrder(rw http.ResponseWriter, r *http.Request) {
 			default:
 				return
 			}
+			resp.Body.Close()
 			time.Sleep(time.Second)
 		}
 	}(h.userService, h.Config.AccrualSystemAddress, user.Value, order)
@@ -194,13 +194,13 @@ func (h *userHandler) GetOrders(rw http.ResponseWriter, r *http.Request) {
 	}
 	for i, order := range orders {
 		resp, err := http.Get(h.Config.AccrualSystemAddress + "/api/orders/" + order.Number)
+		log.Println("status code:", resp.StatusCode)
 		// Check order's status
 		if err != nil {
 			http.Error(rw, ErrAccrualSystem.Error(), http.StatusBadRequest)
 			return
 		}
 		o, err := utils.UnmarhallOrder(resp.Body)
-		defer resp.Body.Close()
 		if err != nil {
 			http.Error(rw, ErrAccrualSystem.Error(), http.StatusBadRequest)
 			return
