@@ -10,6 +10,6 @@ import (
 //55501241
 // 1 0 4 2
 func main() {
-	log.Println(utils.IsOrderCorrect("55501241"))
+	log.Println(utils.IsOrderCorrect("5675110315"))
 	app.Run(":8080")
 }

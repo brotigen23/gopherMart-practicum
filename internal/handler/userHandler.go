@@ -150,6 +150,7 @@ func (h *userHandler) SaveOrder(rw http.ResponseWriter, r *http.Request) {
 				log.Println(err.Error())
 				return
 			}
+			defer resp.Body.Close()
 			switch resp.StatusCode {
 			case http.StatusNoContent:
 				for i := 0; i < 10; i++ {
@@ -190,7 +191,6 @@ func (h *userHandler) SaveOrder(rw http.ResponseWriter, r *http.Request) {
 			default:
 				return
 			}
-			resp.Body.Close()
 			time.Sleep(time.Second)
 		}
 	}(h.userService, h.Config.AccrualSystemAddress, userLogin.Value, order)
