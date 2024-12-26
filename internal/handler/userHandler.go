@@ -62,7 +62,6 @@ func (h *userHandler) Register(rw http.ResponseWriter, r *http.Request) {
 		Name:  "token",
 		Value: jwtString,
 	}
-	r.AddCookie(cookie)
 	http.SetCookie(rw, cookie)
 	rw.WriteHeader(http.StatusOK)
 }
@@ -103,7 +102,6 @@ func (h *userHandler) Login(rw http.ResponseWriter, r *http.Request) {
 		Name:  "token",
 		Value: jwtString,
 	}
-	r.AddCookie(cookie)
 	http.SetCookie(rw, cookie)
 	rw.WriteHeader(http.StatusOK)
 }
@@ -123,11 +121,13 @@ func (h *userHandler) SaveOrder(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 	order := string(body)
-	if !utils.IsOrderCorrect(order) {
-		log.Printf("error: %v", ErrBadOrderNumber.Error())
-		http.Error(rw, ErrBadOrderNumber.Error(), http.StatusUnprocessableEntity)
-		return
-	}
+	/*
+		if !utils.IsOrderCorrect(order) {
+			log.Printf("error: %v", ErrBadOrderNumber.Error())
+			http.Error(rw, ErrBadOrderNumber.Error(), http.StatusUnprocessableEntity)
+			return
+		}
+	*/
 
 	err = h.userService.SaveOrder(user.Value, order)
 	switch err {

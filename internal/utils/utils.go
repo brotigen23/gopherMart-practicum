@@ -82,6 +82,7 @@ func GetUserLoginFromJWT(tokenString string, key string) (string, error) {
 
 func IsOrderCorrect(order string) bool {
 	o, err := strconv.Atoi(order)
+	log.Println("order: ", order, ", int:", o)
 	if err != nil {
 		return false
 	}
