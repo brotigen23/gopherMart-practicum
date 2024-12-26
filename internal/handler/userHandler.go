@@ -194,6 +194,7 @@ func (h *userHandler) SaveOrder(rw http.ResponseWriter, r *http.Request) {
 			time.Sleep(time.Second)
 		}
 	}(h.userService, h.Config.AccrualSystemAddress, userLogin.Value, order)
+	time.Sleep(time.Second * 5)
 }
 
 func (h *userHandler) GetOrders(rw http.ResponseWriter, r *http.Request) {
