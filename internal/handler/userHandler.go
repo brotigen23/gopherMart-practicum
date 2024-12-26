@@ -145,9 +145,7 @@ func (h *userHandler) SaveOrder(rw http.ResponseWriter, r *http.Request) {
 	}
 	// create goroutine to check order status
 	go func(s *service.UserService, accrualAddress string, userLogin string, order string) {
-		log.Println("GOROUTINE")
 		for {
-			time.Sleep(time.Second)
 			resp, err := http.Get(accrualAddress + "/api/orders/" + order)
 			if err != nil {
 				log.Println(err.Error())
@@ -175,6 +173,7 @@ func (h *userHandler) SaveOrder(rw http.ResponseWriter, r *http.Request) {
 			default:
 				return
 			}
+			time.Sleep(time.Second)
 		}
 	}(h.userService, h.Config.AccrualSystemAddress, user.Value, order)
 }
@@ -227,8 +226,8 @@ func (h *userHandler) GetBalance(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 	balance, err := h.userService.GetUserBalance(userLogin.Value)
-	http.Error(rw, err.Error(), http.StatusNoContent)
 	if err != nil {
+		http.Error(rw, err.Error(), http.StatusBadRequest)
 		return
 	}
 	resp, err := json.Marshal(balance)
