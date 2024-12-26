@@ -143,58 +143,55 @@ func (h *userHandler) SaveOrder(rw http.ResponseWriter, r *http.Request) {
 	}
 	log.Println("order", order, "registered by", userLogin)
 	// create goroutine to check order status
-	go func(s *service.UserService, accrualAddress string, userLogin string, order string) {
-		for {
-			resp, err := http.Get(accrualAddress + "/api/orders/" + order)
-			if err != nil {
-				log.Println(err.Error())
-				return
-			}
-			defer resp.Body.Close()
-			switch resp.StatusCode {
-			case http.StatusNoContent:
-				for i := 0; i < 10; i++ {
-					time.Sleep(time.Second)
-					resp, err = http.Get(accrualAddress + "/api/orders/" + order)
-					if err != nil {
-						log.Println(err.Error())
-						return
-					}
-					if resp.StatusCode != http.StatusOK {
-						continue
-					} else {
-						break
-					}
+	for {
+		resp, err := http.Get(h.Config.AccrualSystemAddress + "/api/orders/" + order)
+		if err != nil {
+			log.Println(err.Error())
+			return
+		}
+		defer resp.Body.Close()
+		switch resp.StatusCode {
+		case http.StatusNoContent:
+			for i := 0; i < 10; i++ {
+				time.Sleep(time.Second)
+				resp, err = http.Get(h.Config.AccrualSystemAddress + "/api/orders/" + order)
+				if err != nil {
+					log.Println(err.Error())
+					return
 				}
 				if resp.StatusCode != http.StatusOK {
-					log.Println("accrual error: order is not registered")
-					return
+					continue
+				} else {
+					break
 				}
 			}
 			if resp.StatusCode != http.StatusOK {
+				log.Println("accrual error: order is not registered")
 				return
 			}
-			o, err := utils.UnmarhallOrder(resp.Body)
-			if err != nil {
-				log.Println(err.Error())
-				return
-			}
-			log.Println(o)
-			switch o.Status {
-			case "PROCESSED":
-				log.Println("PROCESSED")
-				s.UpdateUserBalance(userLogin, o.Accrual)
-				return
-			case "INVALID":
-				return
-			case "PROCCESSING", "REGISTERED":
-			default:
-				return
-			}
-			time.Sleep(time.Second)
 		}
-	}(h.userService, h.Config.AccrualSystemAddress, userLogin.Value, order)
-	time.Sleep(time.Second * 5)
+		if resp.StatusCode != http.StatusOK {
+			return
+		}
+		o, err := utils.UnmarhallOrder(resp.Body)
+		if err != nil {
+			log.Println(err.Error())
+			return
+		}
+		log.Println(o)
+		switch o.Status {
+		case "PROCESSED":
+			log.Println("PROCESSED")
+			h.userService.UpdateUserBalance(userLogin.Value, o.Accrual)
+			return
+		case "INVALID":
+			return
+		case "PROCCESSING", "REGISTERED":
+		default:
+			return
+		}
+		time.Sleep(time.Second)
+	}
 }
 
 func (h *userHandler) GetOrders(rw http.ResponseWriter, r *http.Request) {
