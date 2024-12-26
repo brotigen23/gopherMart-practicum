@@ -85,7 +85,7 @@ func IsOrderCorrect(order string) bool {
 	number := 0
 	result := 0
 	for i := 0; i < n; i++ {
-		number = int(order[i]) - '0'
+		number = int(order[n-1-i]) - '0'
 		if (i+1)%2 != 0 {
 			result += number
 			continue
