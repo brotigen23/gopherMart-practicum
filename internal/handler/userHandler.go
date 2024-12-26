@@ -217,6 +217,10 @@ func (h *userHandler) GetOrders(rw http.ResponseWriter, r *http.Request) {
 	}
 	for i, order := range orders {
 		resp, err := http.Get(h.Config.AccrualSystemAddress + "/api/orders/" + order.Number)
+		if resp.StatusCode != http.StatusOK {
+			log.Println("order", order.Number, "is not registered")
+			continue
+		}
 		log.Println("status code:", resp.StatusCode)
 		// Check order's status
 		if err != nil {
