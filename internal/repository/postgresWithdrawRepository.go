@@ -8,7 +8,7 @@ import (
 
 func (r *postgresRepository) GetUserWithdrawals(user *entity.User) ([]entity.Withdraw, error) {
 	ret := []entity.Withdraw{}
-	query := `SELECT id, user_id, sum, proccessed_at FROM withdrawals WHERE user_id = $1 ORDER BY proccessed_at`
+	query := `SELECT id, user_id, sum, processed_at FROM withdrawals WHERE user_id = $1 ORDER BY processed_at`
 	q, err := r.db.Query(query, user.ID)
 	if err != nil {
 		return nil, err

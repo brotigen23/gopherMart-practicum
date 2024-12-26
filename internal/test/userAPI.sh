@@ -30,15 +30,13 @@ echo "GET /api/user/orders"
 curl -i --location --request GET 'localhost:8080/api/user/orders' \
 --header 'Content-Type: application/json' \
 --cookie 'token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3Mzg4MDc0NzgsIkxvZ2luIjoiMzMifQ.4Ly8BxMolpf7W7_wi-niLWalPo1iq81jtpmZzl3fqf8'
-
-
-
-
-
 #Orders test
 echo
-echo "POST /api/user/orders"
-curl -i --location --request POST 'localhost:8080/api/user/orders' \
+echo "GET /api/user/balance"
+curl -i --location --request GET 'localhost:8080/api/user/balance' \
 --header 'Content-Type: application/json' \
---cookie 'token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3Mzg4MDg3OTgsIkxvZ2luIjoiNDQifQ.492NPmAbCYoMMk_QkdausFM44WWH_1uooaUnFZHwykU' \
---data '326383880704'
+--cookie 'token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3Mzg4MDc0NzgsIkxvZ2luIjoiMzMifQ.4Ly8BxMolpf7W7_wi-niLWalPo1iq81jtpmZzl3fqf8'
+
+
+
+
