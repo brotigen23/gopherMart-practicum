@@ -107,7 +107,7 @@ func (h *userHandler) Login(rw http.ResponseWriter, r *http.Request) {
 }
 
 func (h *userHandler) SaveOrder(rw http.ResponseWriter, r *http.Request) {
-	user, err := r.Cookie("userLogin")
+	userLogin, err := r.Cookie("userLogin")
 	if err != nil {
 		log.Printf("error: %v", err)
 		http.Error(rw, ErrJWT.Error(), http.StatusUnauthorized)
@@ -129,7 +129,7 @@ func (h *userHandler) SaveOrder(rw http.ResponseWriter, r *http.Request) {
 		}
 	*/
 
-	err = h.userService.SaveOrder(user.Value, order)
+	err = h.userService.SaveOrder(userLogin.Value, order)
 	switch err {
 	case nil:
 		rw.WriteHeader(http.StatusAccepted)
@@ -143,6 +143,7 @@ func (h *userHandler) SaveOrder(rw http.ResponseWriter, r *http.Request) {
 		log.Println(err.Error())
 		return
 	}
+	log.Println("order", order, "registered by", userLogin)
 	// create goroutine to check order status
 	go func(s *service.UserService, accrualAddress string, userLogin string, order string) {
 		for {
@@ -198,7 +199,7 @@ func (h *userHandler) SaveOrder(rw http.ResponseWriter, r *http.Request) {
 			resp.Body.Close()
 			time.Sleep(time.Second)
 		}
-	}(h.userService, h.Config.AccrualSystemAddress, user.Value, order)
+	}(h.userService, h.Config.AccrualSystemAddress, userLogin.Value, order)
 }
 
 func (h *userHandler) GetOrders(rw http.ResponseWriter, r *http.Request) {
