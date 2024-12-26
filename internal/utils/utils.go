@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"strconv"
 	"time"
 
 	"github.com/brotigen23/gopherMart/internal/dto"
@@ -81,23 +80,21 @@ func GetUserLoginFromJWT(tokenString string, key string) (string, error) {
 }
 
 func IsOrderCorrect(order string) bool {
-	o, err := strconv.Atoi(order)
-	log.Println("order: ", order, ", int:", o)
-	if err != nil {
-		return false
-	}
 
-	var luhn int
-	for i := 0; o > 0; i++ {
-		tmp := o % 10
-		if i%2 == 0 {
-			tmp = tmp * 2
-			if tmp > 9 {
-				tmp = tmp%10 + tmp/10
-			}
+	n := len(order)
+	number := 0
+	result := 0
+	for i := 0; i < n; i++ {
+		number = int(order[i]) - '0'
+		if i%2 != 0 {
+			result += number
+			continue
 		}
-		luhn += tmp
-		o = o / 10
+		number *= 2
+		if number > 9 {
+			number -= 9
+		}
+		result += number
 	}
-	return luhn%10 == 0
+	return result%10 == 0
 }
