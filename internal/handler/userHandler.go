@@ -151,6 +151,7 @@ func (h *userHandler) SaveOrder(rw http.ResponseWriter, r *http.Request) {
 				log.Println(err.Error())
 				return
 			}
+			log.Println(resp.StatusCode)
 			o, err := utils.UnmarhallOrder(resp.Body)
 			if err != nil {
 				log.Println(err.Error())

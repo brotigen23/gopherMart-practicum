@@ -13,7 +13,7 @@ func (r *postgresRepository) GetOrders(login string) ([]entity.Order, error) {
 	if err != nil {
 		return nil, err
 	}
-	query, err := r.db.Query(`SELECT * FROM Orders WHERE user_id = $1 ORDER BY uploaded_at `, user.ID)
+	query, err := r.db.Query(`SELECT id, user_id, "order", uploaded_at FROM Orders WHERE user_id = $1 ORDER BY uploaded_at `, user.ID)
 	if err != nil {
 		return nil, err
 	}
