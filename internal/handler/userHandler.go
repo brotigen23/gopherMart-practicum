@@ -123,7 +123,7 @@ func (h *userHandler) SaveOrder(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 	order := string(body)
-	if utils.IsOrderCorrect(order) {
+	if !utils.IsOrderCorrect(order) {
 		log.Printf("error: %v", ErrBadOrderNumber.Error())
 		http.Error(rw, ErrBadOrderNumber.Error(), http.StatusUnprocessableEntity)
 		return
