@@ -151,7 +151,29 @@ func (h *userHandler) SaveOrder(rw http.ResponseWriter, r *http.Request) {
 				log.Println(err.Error())
 				return
 			}
-			log.Println(resp.StatusCode)
+			switch resp.StatusCode {
+			case http.StatusNoContent:
+				for i := 0; i < 10; i++ {
+					time.Sleep(time.Second)
+					resp, err = http.Get(accrualAddress + "/api/orders/" + order)
+					if err != nil {
+						log.Println(err.Error())
+						return
+					}
+					if resp.StatusCode != http.StatusOK {
+						continue
+					} else {
+						break
+					}
+				}
+				if resp.StatusCode != http.StatusOK {
+					log.Println("accrual error: order is not registered")
+					return
+				}
+			}
+			if resp.StatusCode != http.StatusOK {
+				return
+			}
 			o, err := utils.UnmarhallOrder(resp.Body)
 			if err != nil {
 				log.Println(err.Error())
