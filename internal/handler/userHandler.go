@@ -144,35 +144,32 @@ func (h *userHandler) SaveOrder(rw http.ResponseWriter, r *http.Request) {
 	}
 	log.Println("order", order, "registered by", userLogin)
 	// create goroutine to check order status
-	go func() {
-		for {
-			time.Sleep(time.Second)
-			resp, err := http.Get(h.Config.AccrualSystemAddress + "/api/orders/" + order)
-			if err != nil {
-				log.Println(err.Error())
-				return
-			}
-			if resp.StatusCode != http.StatusOK {
-				continue
-			}
-			o, err := utils.UnmarhallOrder(resp.Body)
-			if err != nil {
-				log.Println(err.Error())
-				return
-			}
-			defer resp.Body.Close()
-			log.Println(o)
-			switch o.Status {
-			case "PROCESSED":
-				log.Println("PROCESSED")
-				h.userService.UpdateUserBalance(userLogin.Value, o.Accrual)
-				return
-			default:
-				return
-			}
+	for {
+		time.Sleep(time.Second)
+		resp, err := http.Get(h.Config.AccrualSystemAddress + "/api/orders/" + order)
+		if err != nil {
+			log.Println(err.Error())
+			return
 		}
-
-	}()
+		if resp.StatusCode != http.StatusOK {
+			continue
+		}
+		o, err := utils.UnmarhallOrder(resp.Body)
+		if err != nil {
+			log.Println(err.Error())
+			return
+		}
+		defer resp.Body.Close()
+		log.Println(o)
+		switch o.Status {
+		case "PROCESSED":
+			log.Println("PROCESSED")
+			h.userService.UpdateUserBalance(userLogin.Value, o.Accrual)
+			return
+		default:
+			return
+		}
+	}
 }
 
 func (h *userHandler) GetOrders(rw http.ResponseWriter, r *http.Request) {
