@@ -17,16 +17,18 @@ func (r *postgresRepository) GetUserWithdrawals(user *entity.User) ([]entity.Wit
 
 	var ID int
 	var UserID int
+	var order string
 	var Sum float32
 	var ProccessedAt time.Time
 	for rows.Next() {
-		err = rows.Scan(&ID, &UserID, &Sum, &ProccessedAt)
+		err = rows.Scan(&ID, &UserID, order, &Sum, &ProccessedAt)
 		if err != nil {
 			return nil, err
 		}
 		ret = append(ret, entity.Withdraw{
 			ID:           ID,
 			UserID:       UserID,
+			Order:        order,
 			Sum:          Sum,
 			ProccessedAt: ProccessedAt,
 		})
