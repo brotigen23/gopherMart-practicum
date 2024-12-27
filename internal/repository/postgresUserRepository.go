@@ -57,6 +57,6 @@ func (r *postgresRepository) UpdateUserBalance(user *entity.User, sum float32) e
 	if err != nil {
 		return err
 	}
-	log.Println(r.GetUserByID(user.ID))
+	log.Println(r.GetUserByLogin(user.Login))
 	return nil
 }
