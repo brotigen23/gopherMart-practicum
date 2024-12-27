@@ -54,7 +54,7 @@ func (s Server) Run() error {
 	router.With(middleware.Auth(s.config.JWTSecretKey)).Get("/api/user/balance", userHandler.GetBalance)
 	router.With(middleware.Auth(s.config.JWTSecretKey)).Post("/api/user/balance/withdraw", userHandler.Withdraw)
 
-	router.With(middleware.Auth(s.config.JWTSecretKey)).Get("/api/user/withdrawals", userHandler.GetWithDrawals)
+	router.With(middleware.Auth(s.config.JWTSecretKey)).Get("/api/user/withdrawals", userHandler.GetWithdrawals)
 
 	serv := &http.Server{
 		Addr:    s.config.RunAdress,

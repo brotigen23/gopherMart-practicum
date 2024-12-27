@@ -133,3 +133,24 @@ func (s *UserService) GetOrders(login string) ([]dto.Order, error) {
 	}
 	return ret, nil
 }
+
+func (s *UserService) Withdraw(userLogin string, orderNum string, sum float32) error {
+	user, err := s.repository.GetUserByLogin(userLogin)
+	if err != nil {
+		return err
+	}
+	order, err := s.repository.GetOrderByNumber(orderNum)
+	if (err != nil && err == repository.ErrOrderNotFound) || (order.UserID != user.ID) {
+		return ErrOrderIsIncorrect
+	}
+	if err != nil {
+		return err
+	}
+
+	if user.Balance < sum {
+		return ErrNotEnoughBalance
+	}
+	s.repository.UpdateUserBalance(user, -sum)
+
+	return nil
+}

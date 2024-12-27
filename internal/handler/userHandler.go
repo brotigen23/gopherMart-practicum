@@ -267,9 +267,23 @@ func (h *userHandler) GetBalance(rw http.ResponseWriter, r *http.Request) {
 }
 
 func (h *userHandler) Withdraw(rw http.ResponseWriter, r *http.Request) {
+	userLogin, err := r.Cookie("userLogin")
+	if err != nil {
+		return
+	}
+
+	withdraw, err := utils.UnmarhallWithdraw(r.Body)
+	if err != nil {
+		return
+	}
+	err = h.userService.Withdraw(userLogin.Value, withdraw.Order, withdraw.Sum)
+	switch err {
+	case service.ErrNotEnoughBalance:
+		http.Error(rw, err.Error(), http.StatusPaymentRequired)
+	}
 
 }
 
-func (h *userHandler) GetWithDrawals(rw http.ResponseWriter, r *http.Request) {
+func (h *userHandler) GetWithdrawals(rw http.ResponseWriter, r *http.Request) {
 
 }

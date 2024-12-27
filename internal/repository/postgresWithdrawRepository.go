@@ -32,3 +32,12 @@ func (r *postgresRepository) GetUserWithdrawals(user *entity.User) ([]entity.Wit
 	}
 	return ret, nil
 }
+
+func (r *postgresRepository) SaveWithdraw(user *entity.User, withdraw *entity.Withdraw) error {
+	query := "INSERT INTO Withdrawals(user_id, sum, processed_at) VALUES($1, $2, $3)"
+	_, err := r.db.Exec(query, user.ID, withdraw.Sum, time.Now())
+	if err != nil {
+		return err
+	}
+	return nil
+}

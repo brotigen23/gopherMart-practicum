@@ -99,3 +99,18 @@ func IsOrderCorrect(order []byte) bool {
 	}
 	return result%10 == 0
 }
+func UnmarhallWithdraw(r io.ReadCloser) (*dto.Withdraw, error) {
+	var withdraw dto.Withdraw
+	var buffer bytes.Buffer
+	_, err := buffer.ReadFrom(r)
+	if err != nil {
+		// TODO: обработать ошибку
+		log.Printf("error: %v", err.Error())
+		return nil, err
+	}
+	if err = json.Unmarshal(buffer.Bytes(), &withdraw); err != nil {
+		log.Printf("error: %v", err.Error())
+		return nil, err
+	}
+	return &withdraw, nil
+}
