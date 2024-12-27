@@ -145,7 +145,18 @@ func (s *UserService) Withdraw(userLogin string, orderNum string, sum float32) e
 	if user.Balance < sum {
 		return ErrNotEnoughBalance
 	}
-	s.repository.UpdateUserBalance(user, -sum)
-
+	withdraw := &entity.Withdraw{
+		UserID:       user.ID,
+		Sum:          sum,
+		ProccessedAt: time.Now(),
+	}
+	err = s.repository.UpdateUserBalance(user, -sum)
+	if err != nil {
+		return err
+	}
+	err = s.repository.SaveWithdraw(user, withdraw)
+	if err != nil {
+		return err
+	}
 	return nil
 }

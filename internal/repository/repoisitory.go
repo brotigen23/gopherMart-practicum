@@ -18,4 +18,5 @@ type Repository interface {
 
 	// Withdrawals
 	GetUserWithdrawals(user *entity.User) ([]entity.Withdraw, error)
+	SaveWithdraw(user *entity.User, withdraw *entity.Withdraw) error
 }
