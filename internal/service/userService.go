@@ -8,6 +8,7 @@ import (
 	"github.com/brotigen23/gopherMart/internal/dto"
 	"github.com/brotigen23/gopherMart/internal/entity"
 	"github.com/brotigen23/gopherMart/internal/repository"
+	"github.com/brotigen23/gopherMart/internal/utils"
 )
 
 type UserService struct {
@@ -80,6 +81,10 @@ func (s *UserService) SaveUser(login string, password string) error {
 }
 
 func (s *UserService) SaveOrder(login string, orderNum string) error {
+	if !utils.IsOrderCorrect([]byte(orderNum)) {
+		return ErrOrderIsIncorrect
+	}
+
 	// Получаем пользователя
 	user, err := s.repository.GetUserByLogin(login)
 	if err != nil {
@@ -128,4 +133,3 @@ func (s *UserService) GetOrders(login string) ([]dto.Order, error) {
 	}
 	return ret, nil
 }
-

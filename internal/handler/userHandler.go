@@ -121,24 +121,25 @@ func (h *userHandler) SaveOrder(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 	order := string(body)
-	if !utils.IsOrderCorrect(order) {
-		log.Printf("error: %v", ErrBadOrderNumber.Error())
-		http.Error(rw, ErrBadOrderNumber.Error(), http.StatusUnprocessableEntity)
-		return
-	}
-
 	err = h.userService.SaveOrder(userLogin.Value, order)
 	switch err {
 	case nil:
 		rw.WriteHeader(http.StatusAccepted)
+	case service.ErrOrderIsIncorrect:
+		log.Println(service.ErrOrderIsIncorrect.Error())
+		http.Error(rw, service.ErrOrderIsIncorrect.Error(), http.StatusBadRequest)
+		return
 	case service.ErrOrderAlreadySave:
+		log.Println(service.ErrOrderAlreadySave.Error())
 		http.Error(rw, service.ErrOrderAlreadySave.Error(), http.StatusOK)
 		return
 	case service.ErrOrderSavedByOtherUser:
+		log.Println(service.ErrOrderSavedByOtherUser.Error())
 		http.Error(rw, service.ErrOrderSavedByOtherUser.Error(), http.StatusConflict)
 		return
 	default:
 		log.Println(err.Error())
+		http.Error(rw, err.Error(), http.StatusBadRequest)
 		return
 	}
 	log.Println("order", order, "registered by", userLogin)

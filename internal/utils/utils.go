@@ -80,8 +80,9 @@ func GetUserLoginFromJWT(tokenString string, key string) (string, error) {
 }
 
 // 38215667007
-func IsOrderCorrect(order string) bool {
+func IsOrderCorrect(order []byte) bool {
 	n := len(order)
+
 	number := 0
 	result := 0
 	for i := 0; i < n; i++ {
