@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/brotigen23/gopherMart/internal/config"
+	"github.com/brotigen23/gopherMart/internal/repository"
 	"github.com/brotigen23/gopherMart/internal/service"
 	"github.com/brotigen23/gopherMart/internal/utils"
 )
@@ -298,5 +299,34 @@ func (h *userHandler) Withdraw(rw http.ResponseWriter, r *http.Request) {
 }
 
 func (h *userHandler) GetWithdrawals(rw http.ResponseWriter, r *http.Request) {
+	log.Println("withdrawals handler")
+	userLogin, err := r.Cookie("userLogin")
+	if err != nil {
+		return
+	}
+	log.Println("user:", userLogin.Value)
+
+	withdrawals, err := h.userService.GetWithdrawals(userLogin.Value)
+	if err != nil && err == repository.ErrOrderNotFound {
+		http.Error(rw, err.Error(), http.StatusNoContent)
+		return
+	}
+	if err != nil {
+		log.Println("withdrawals handler error:", err.Error())
+		http.Error(rw, err.Error(), http.StatusBadRequest)
+		return
+	}
+	log.Println("withdrawals:", withdrawals)
+
+	resp, err := json.Marshal(withdrawals)
+	if err != nil {
+		http.Error(rw, err.Error(), http.StatusBadRequest)
+		return
+	}
+	rw.Header().Set("Content-Type", "application/json")
+	rw.WriteHeader(http.StatusOK)
+	rw.Write(resp)
+
+	log.Println("withdrawals handler done")
 
 }

@@ -147,6 +147,7 @@ func (s *UserService) Withdraw(userLogin string, orderNum string, sum float32) e
 	}
 	withdraw := &entity.Withdraw{
 		UserID:       user.ID,
+		Order:        orderNum,
 		Sum:          sum,
 		ProccessedAt: time.Now(),
 	}
@@ -159,4 +160,26 @@ func (s *UserService) Withdraw(userLogin string, orderNum string, sum float32) e
 		return err
 	}
 	return nil
+}
+
+func (s *UserService) GetWithdrawals(userLogin string) ([]dto.Withdraw, error) {
+	ret := []dto.Withdraw{}
+	user, err := s.repository.GetUserByLogin(userLogin)
+	if err != nil {
+		return nil, err
+	}
+	withdrawals, err := s.repository.GetUserWithdrawals(user)
+	if err != nil {
+		return nil, err
+	}
+	for _, ww := range withdrawals {
+		w := dto.Withdraw{
+			Order:       ww.Order,
+			Sum:         ww.Sum,
+			ProcessedAt: ww.ProccessedAt,
+		}
+		ret = append(ret, w)
+	}
+
+	return ret, nil
 }
