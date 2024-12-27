@@ -285,6 +285,9 @@ func (h *userHandler) Withdraw(rw http.ResponseWriter, r *http.Request) {
 	case service.ErrNotEnoughBalance:
 		log.Println("withdraw handler error:", service.ErrNotEnoughBalance.Error())
 		http.Error(rw, service.ErrNotEnoughBalance.Error(), http.StatusPaymentRequired)
+	case service.ErrOrderIsIncorrect:
+		log.Println("withdraw handler error:", service.ErrOrderIsIncorrect.Error())
+		http.Error(rw, service.ErrOrderIsIncorrect.Error(), http.StatusBadRequest)
 	default:
 		log.Println("withdraw handler error:", err.Error())
 		http.Error(rw, err.Error(), http.StatusPaymentRequired)
