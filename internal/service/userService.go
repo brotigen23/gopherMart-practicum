@@ -140,11 +140,14 @@ func (s *UserService) Withdraw(userLogin string, orderNum string, sum float32) e
 		return err
 	}
 	order, err := s.repository.GetOrderByNumber(orderNum)
-	if (err != nil && err == repository.ErrOrderNotFound) || (order.UserID != user.ID) {
+	if err != nil && err == repository.ErrOrderNotFound {
 		return ErrOrderIsIncorrect
 	}
 	if err != nil {
 		return err
+	}
+	if order.UserID != user.ID {
+		return ErrOrderIsIncorrect
 	}
 
 	if user.Balance < sum {
