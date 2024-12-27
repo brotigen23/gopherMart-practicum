@@ -215,6 +215,8 @@ func (h *userHandler) GetOrders(rw http.ResponseWriter, r *http.Request) {
 		resp, err := http.Get(h.Config.AccrualSystemAddress + "/api/orders/" + order.Number)
 		if resp.StatusCode != http.StatusOK {
 			log.Println("order", order.Number, "is not registered")
+			orders[i].Status = "NEW"
+			orders[i].Accrual = 0
 			continue
 		}
 		log.Println("status code:", resp.StatusCode)
