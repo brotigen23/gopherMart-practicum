@@ -281,7 +281,11 @@ func (h *userHandler) Withdraw(rw http.ResponseWriter, r *http.Request) {
 	log.Println("withdraw:", withdraw)
 	err = h.userService.Withdraw(userLogin.Value, withdraw.Order, withdraw.Sum)
 	switch err {
+	case nil:
 	case service.ErrNotEnoughBalance:
+		log.Println("withdraw handler error:", service.ErrNotEnoughBalance.Error())
+		http.Error(rw, service.ErrNotEnoughBalance.Error(), http.StatusPaymentRequired)
+	default:
 		log.Println("withdraw handler error:", err.Error())
 		http.Error(rw, err.Error(), http.StatusPaymentRequired)
 	}
