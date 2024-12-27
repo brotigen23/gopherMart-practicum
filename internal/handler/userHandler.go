@@ -127,7 +127,7 @@ func (h *userHandler) SaveOrder(rw http.ResponseWriter, r *http.Request) {
 		rw.WriteHeader(http.StatusAccepted)
 	case service.ErrOrderIsIncorrect:
 		log.Println(service.ErrOrderIsIncorrect.Error())
-		http.Error(rw, service.ErrOrderIsIncorrect.Error(), http.StatusBadRequest)
+		http.Error(rw, service.ErrOrderIsIncorrect.Error(), http.StatusUnprocessableEntity)
 		return
 	case service.ErrOrderAlreadySave:
 		log.Println(service.ErrOrderAlreadySave.Error())
@@ -144,32 +144,35 @@ func (h *userHandler) SaveOrder(rw http.ResponseWriter, r *http.Request) {
 	}
 	log.Println("order", order, "registered by", userLogin)
 	// create goroutine to check order status
-	for {
-		time.Sleep(time.Second)
-		resp, err := http.Get(h.Config.AccrualSystemAddress + "/api/orders/" + order)
-		if err != nil {
-			log.Println(err.Error())
-			return
+	go func() {
+		for {
+			time.Sleep(time.Second)
+			resp, err := http.Get(h.Config.AccrualSystemAddress + "/api/orders/" + order)
+			if err != nil {
+				log.Println(err.Error())
+				return
+			}
+			if resp.StatusCode != http.StatusOK {
+				continue
+			}
+			o, err := utils.UnmarhallOrder(resp.Body)
+			if err != nil {
+				log.Println(err.Error())
+				return
+			}
+			defer resp.Body.Close()
+			log.Println(o)
+			switch o.Status {
+			case "PROCESSED":
+				log.Println("PROCESSED")
+				h.userService.UpdateUserBalance(userLogin.Value, o.Accrual)
+				return
+			default:
+				return
+			}
 		}
-		if resp.StatusCode != http.StatusOK {
-			continue
-		}
-		o, err := utils.UnmarhallOrder(resp.Body)
-		if err != nil {
-			log.Println(err.Error())
-			return
-		}
-		defer resp.Body.Close()
-		log.Println(o)
-		switch o.Status {
-		case "PROCESSED":
-			log.Println("PROCESSED")
-			h.userService.UpdateUserBalance(userLogin.Value, o.Accrual)
-			return
-		default:
-			return
-		}
-	}
+
+	}()
 }
 
 func (h *userHandler) GetOrders(rw http.ResponseWriter, r *http.Request) {
