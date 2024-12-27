@@ -231,6 +231,7 @@ func (h *userHandler) GetOrders(rw http.ResponseWriter, r *http.Request) {
 			http.Error(rw, ErrAccrualSystem.Error(), http.StatusBadRequest)
 			return
 		}
+		resp.Body.Close()
 		orders[i].Status = o.Status
 		orders[i].Accrual = o.Accrual
 	}

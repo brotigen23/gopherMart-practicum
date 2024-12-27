@@ -13,17 +13,18 @@ func (r *postgresRepository) GetOrders(login string) ([]entity.Order, error) {
 	if err != nil {
 		return nil, err
 	}
-	query, err := r.db.Query(`SELECT id, user_id, "order", uploaded_at FROM Orders WHERE user_id = $1 ORDER BY uploaded_at `, user.ID)
+	rows, err := r.db.Query(`SELECT id, user_id, "order", uploaded_at FROM Orders WHERE user_id = $1 ORDER BY uploaded_at `, user.ID)
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
 	var ID int
 	var UserID int
 	var Order string
 	var UploadedAt time.Time
-	for query.Next() {
-		err := query.Scan(&ID, &UserID, &Order, &UploadedAt)
+	for rows.Next() {
+		err := rows.Scan(&ID, &UserID, &Order, &UploadedAt)
 		if err != nil {
 			return nil, err
 		}
@@ -33,6 +34,9 @@ func (r *postgresRepository) GetOrders(login string) ([]entity.Order, error) {
 			Order:      Order,
 			UploadedAt: UploadedAt,
 		})
+	}
+	if rows.Err() != nil {
+		return nil, rows.Err()
 	}
 	return ret, nil
 }
