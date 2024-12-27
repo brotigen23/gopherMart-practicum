@@ -1,6 +1,6 @@
 # Auth test
 echo "Goods"
-curl -v --location --request POST 'localhost:9090/api/goods' \
+curl -i -X POST 'localhost:9090/api/goods' \
 --header 'Content-Type: application/json' \
 --data '{
     "match":"Bork",
@@ -9,8 +9,11 @@ curl -v --location --request POST 'localhost:9090/api/goods' \
 
 }'
 
+echo
+echo
+echo
 echo "Orders"
-curl -i --location --request POST 'localhost:9090/api/orders' \
+curl -i -X POST 'localhost:9090/api/orders' \
 --header 'Content-Type: application/json' \
 --data '{
     "order":"131416880329",
@@ -21,10 +24,29 @@ curl -i --location --request POST 'localhost:9090/api/orders' \
         }
     ]
 }'
-curl -i --location --request POST 'localhost:9090/api/orders' \
+
+echo
+echo
+echo
+curl -i -X POST 'localhost:9090/api/orders' \
 --header 'Content-Type: application/json' \
 --data '{
     "order":"326383880704",
+    "goods":[
+        {
+            "description":"Чайник Bork",
+            "price": 555
+        }
+    ]
+}'
+
+echo
+echo
+echo
+curl -i -X POST 'localhost:9090/api/orders' \
+--header 'Content-Type: application/json' \
+--data '{
+    "order":"87051263033",
     "goods":[
         {
             "description":"Чайник Bork",
