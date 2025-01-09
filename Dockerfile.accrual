@@ -1,0 +1,3 @@
+FROM ubuntu
+COPY cmd/accrual/accrual_linux_amd64 /bin/main
+ENTRYPOINT ["/bin/main"]

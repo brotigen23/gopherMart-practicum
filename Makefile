@@ -1,6 +1,6 @@
 .PHONY: run
 run:
-	go run cmd/gophermart/main.go
+	docker compose up
 
 .PHONY: test
 test:
@@ -26,4 +26,9 @@ mock:
 
 accrualData:
 	./internal/test/accrualData.sh
+
+init:
+	docker build --tag gopher-mart .
+	docker build -f Dockerfile.accrual --tag accrual .
+
 

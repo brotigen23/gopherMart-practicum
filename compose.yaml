@@ -1,4 +1,30 @@
 services:
+
+  # Сервер
+  gopher-mart:
+    image: gopher-mart
+    environment:
+      RUN_ADDRESS: localhost:8080
+      DATABASE_URI: "host=localhost port=5432 user=myuser password=1234 dbname=mydb sslmode=disable"
+      ACCRUAL_SYSTEM_ADDRESS: http://localhost:9090
+      SECRET_KEY: secret
+    network_mode: host
+    ports:
+      - "8080:8080"
+    restart: always
+    depends_on:
+      - postgres
+      - accrual
+
+  # Система лояльности
+  accrual:
+    image: accrual
+    environment: 
+      RUN_ADDRESS: localhost:9090
+    network_mode: host
+
+
+  # БД
   postgres:
     image: postgres
     environment:
