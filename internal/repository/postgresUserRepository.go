@@ -1,8 +1,6 @@
 package repository
 
 import (
-	"log"
-
 	"github.com/brotigen23/gopherMart/internal/entity"
 )
 
@@ -32,7 +30,9 @@ func (r *postgresRepository) GetUserByLogin(login string) (*entity.User, error) 
 }
 
 func (r *postgresRepository) SaveUser(user *entity.User) (*entity.User, error) {
-	query := "INSERT INTO Users(login, password) VALUES($1, $2) RETURNING ID"
+	query := `	INSERT INTO Users(login, password) 
+				VALUES($1, $2) 
+				RETURNING ID`
 	var (
 		id int
 	)
@@ -50,13 +50,13 @@ func (r *postgresRepository) SaveUser(user *entity.User) (*entity.User, error) {
 }
 
 func (r *postgresRepository) UpdateUserBalance(user *entity.User, sum float32) error {
-	query := "UPDATE Users SET balance = balance + $1 WHERE id = $2"
+	query := `	UPDATE Users 
+				SET balance = balance + $1 WHERE id = $2`
 
 	_, err := r.db.Exec(query, sum, user.ID)
 
 	if err != nil {
 		return err
 	}
-	log.Println(r.GetUserByLogin(user.Login))
 	return nil
 }

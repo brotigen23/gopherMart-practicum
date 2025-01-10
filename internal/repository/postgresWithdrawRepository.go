@@ -8,7 +8,10 @@ import (
 
 func (r *postgresRepository) GetUserWithdrawals(user *entity.User) ([]entity.Withdraw, error) {
 	ret := []entity.Withdraw{}
-	query := `SELECT id, user_id, "order", sum, processed_at FROM withdrawals WHERE user_id = $1 ORDER BY processed_at`
+	query := `	SELECT id, user_id, "order", sum, processed_at 
+				FROM withdrawals 
+				WHERE user_id = $1 
+				ORDER BY processed_at`
 	rows, err := r.db.Query(query, user.ID)
 	if err != nil {
 		return nil, err
@@ -42,7 +45,8 @@ func (r *postgresRepository) GetUserWithdrawals(user *entity.User) ([]entity.Wit
 }
 
 func (r *postgresRepository) SaveWithdraw(user *entity.User, withdraw *entity.Withdraw) error {
-	query := `INSERT INTO Withdrawals(user_id, "order", sum, processed_at) VALUES($1, $2, $3, $4)`
+	query := `	INSERT INTO Withdrawals(user_id, "order", sum, processed_at) 
+				VALUES($1, $2, $3, $4)`
 	_, err := r.db.Exec(query, user.ID, withdraw.Order, withdraw.Sum, withdraw.ProccessedAt)
 	if err != nil {
 		return err

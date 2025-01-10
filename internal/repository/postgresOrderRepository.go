@@ -13,7 +13,11 @@ func (r *postgresRepository) GetOrders(login string) ([]entity.Order, error) {
 	if err != nil {
 		return nil, err
 	}
-	rows, err := r.db.Query(`SELECT id, user_id, "order", uploaded_at FROM Orders WHERE user_id = $1 ORDER BY uploaded_at `, user.ID)
+	query := `	SELECT id, user_id, "order", uploaded_at 
+				FROM Orders 
+				WHERE user_id = $1 
+				ORDER BY uploaded_at `
+	rows, err := r.db.Query(query, user.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -41,12 +45,15 @@ func (r *postgresRepository) GetOrders(login string) ([]entity.Order, error) {
 	return ret, nil
 }
 func (r *postgresRepository) GetOrderByNumber(orderNum string) (*entity.Order, error) {
-	query := r.db.QueryRow(`SELECT id, user_id, "order", uploaded_at FROM Orders WHERE "order" = $1`, orderNum)
+	query := `	SELECT id, user_id, "order", uploaded_at 
+				FROM Orders 
+				WHERE "order" = $1`
+	row := r.db.QueryRow(query, orderNum)
 	var ID int
 	var UserID int
 	var OrderNum string
 	var UploadedAt time.Time
-	err := query.Scan(&ID, &UserID, &OrderNum, &UploadedAt)
+	err := row.Scan(&ID, &UserID, &OrderNum, &UploadedAt)
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +66,9 @@ func (r *postgresRepository) GetOrderByNumber(orderNum string) (*entity.Order, e
 }
 
 func (r *postgresRepository) SaveOrder(order *entity.Order) (*entity.Order, error) {
-	query := `INSERT INTO Orders(user_id, "order", uploaded_at) VALUES($1, $2, $3) RETURNING ID`
+	query := `	INSERT INTO Orders(user_id, "order", uploaded_at) 
+				VALUES($1, $2, $3) 
+				RETURNING ID`
 	time := time.Now()
 	var (
 		id int

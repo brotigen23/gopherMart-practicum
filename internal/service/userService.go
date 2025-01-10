@@ -151,11 +151,7 @@ func (s *UserService) Withdraw(userLogin string, orderNum string, sum float32) e
 		Sum:          sum,
 		ProccessedAt: time.Now(),
 	}
-	err = s.repository.UpdateUserBalance(user, -sum)
-	if err != nil {
-		return err
-	}
-	err = s.repository.SaveWithdraw(user, withdraw)
+	err = s.repository.SaveWithdrawAndUpdateBalance(user, -sum, withdraw)
 	if err != nil {
 		return err
 	}

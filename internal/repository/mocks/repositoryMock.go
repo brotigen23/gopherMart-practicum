@@ -153,6 +153,20 @@ func (mr *MockRepositoryMockRecorder) SaveWithdraw(user, withdraw interface{}) *
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveWithdraw", reflect.TypeOf((*MockRepository)(nil).SaveWithdraw), user, withdraw)
 }
 
+// SaveWithdrawAndUpdateBalance mocks base method.
+func (m *MockRepository) SaveWithdrawAndUpdateBalance(user *entity.User, sum float32, withdraw *entity.Withdraw) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SaveWithdrawAndUpdateBalance", user, sum, withdraw)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SaveWithdrawAndUpdateBalance indicates an expected call of SaveWithdrawAndUpdateBalance.
+func (mr *MockRepositoryMockRecorder) SaveWithdrawAndUpdateBalance(user, sum, withdraw interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveWithdrawAndUpdateBalance", reflect.TypeOf((*MockRepository)(nil).SaveWithdrawAndUpdateBalance), user, sum, withdraw)
+}
+
 // UpdateUserBalance mocks base method.
 func (m *MockRepository) UpdateUserBalance(user *entity.User, sum float32) error {
 	m.ctrl.T.Helper()
