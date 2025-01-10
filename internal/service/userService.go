@@ -55,7 +55,7 @@ func (s *UserService) GetUserPasswordByLogin(login string) (string, error) {
 
 func (s *UserService) IsUserExists(login string) bool {
 	_, err := s.repository.GetUserByLogin(login)
-	if err != nil && errors.Is(err, repository.ErrOrderNotFound) {
+	if err != nil && errors.Is(err, repository.ErrUserNotFound) {
 		return false
 	}
 	if err != nil {

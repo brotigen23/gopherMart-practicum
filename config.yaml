@@ -1,7 +1,0 @@
-# Server configurations
-
-
-# Database credentials
-database:
-  user: "user"
-  pass: "1234"

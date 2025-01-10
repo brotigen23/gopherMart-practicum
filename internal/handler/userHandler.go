@@ -30,10 +30,14 @@ func (h *userHandler) Register(rw http.ResponseWriter, r *http.Request) {
 	user, err := utils.UnmarhallUser(r.Body)
 	if err != nil {
 		log.Printf("error: %v", err.Error())
-		http.Error(rw, ErrInternalServer.Error(), http.StatusInternalServerError)
+		http.Error(rw, err.Error(), http.StatusBadRequest)
 		return
 	}
-
+	if user.Login == "" || user.Password == "" {
+		log.Printf("error: %v", ErrWrongLogin.Error())
+		http.Error(rw, ErrWrongLogin.Error(), http.StatusBadRequest)
+		return
+	}
 	// Проверяем наличие логина в БД
 	if h.userService.IsUserExists(user.Login) {
 		log.Printf("error: %v", ErrUserExists)
@@ -70,7 +74,7 @@ func (h *userHandler) Register(rw http.ResponseWriter, r *http.Request) {
 func (h *userHandler) Login(rw http.ResponseWriter, r *http.Request) {
 	user, err := utils.UnmarhallUser(r.Body)
 	if err != nil {
-		http.Error(rw, "server error", http.StatusInternalServerError)
+		http.Error(rw, err.Error(), http.StatusBadRequest)
 		return
 	}
 	//* Проверяем наличие логина в БД и правильность введенного пароля

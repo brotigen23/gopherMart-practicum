@@ -1,6 +1,6 @@
 .PHONY: run
 run:
-	docker compose up
+	go run cmd/gophermart/main.go
 
 .PHONY: test
 test:
