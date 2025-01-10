@@ -77,6 +77,11 @@ func (h *userHandler) Login(rw http.ResponseWriter, r *http.Request) {
 		http.Error(rw, err.Error(), http.StatusBadRequest)
 		return
 	}
+	if user.Login == "" || user.Password == "" {
+		log.Printf("error: %v", ErrWrongLogin.Error())
+		http.Error(rw, ErrWrongLogin.Error(), http.StatusBadRequest)
+		return
+	}
 	//* Проверяем наличие логина в БД и правильность введенного пароля
 	if !h.userService.IsUserExists(user.Login) {
 		log.Printf("error: %v", ErrWrongLogin.Error())

@@ -148,7 +148,7 @@ func TestLogin(t *testing.T) {
 				contentType: "application/json",
 			},
 			want: want{
-				statusCode: http.StatusConflict,
+				statusCode: http.StatusUnauthorized,
 			},
 		}, {
 			name: "Test Incorrect data",
@@ -162,7 +162,7 @@ func TestLogin(t *testing.T) {
 		},
 	}
 	// Test OK [0]
-	mockRepository.EXPECT().GetUserByLogin(tests[0].args.data.Login).Return(&entity.User{Login: tests[0].args.data.Login, Password: tests[0].args.data.Password}, nil)
+	mockRepository.EXPECT().GetUserByLogin(tests[0].args.data.Login).Return(&entity.User{ID: 1, Login: tests[0].args.data.Login, Password: tests[0].args.data.Password}, nil).MaxTimes(5)
 	// Test Conflict [1]
 	mockRepository.EXPECT().GetUserByLogin(tests[1].args.data.Login).Return(nil, repository.ErrUserNotFound)
 

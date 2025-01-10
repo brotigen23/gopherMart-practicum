@@ -48,7 +48,10 @@ func (r *postgresRepository) SaveWithdrawAndUpdateBalance(user *entity.User, sum
 	_, err = tx.Exec(queryToUpdateBalance, sum, user.ID)
 
 	if err != nil {
-		tx.Rollback()
+		e := tx.Rollback()
+		if e != nil {
+			return e
+		}
 		return err
 	}
 
@@ -57,7 +60,10 @@ func (r *postgresRepository) SaveWithdrawAndUpdateBalance(user *entity.User, sum
 	VALUES($1, $2, $3, $4)`
 	_, err = tx.Exec(queryToSaveWithdraw, user.ID, withdraw.Order, withdraw.Sum, withdraw.ProccessedAt)
 	if err != nil {
-		tx.Rollback()
+		e := tx.Rollback()
+		if e != nil {
+			return e
+		}
 		return err
 	}
 	err = tx.Commit()
