@@ -161,7 +161,11 @@ func (h *userHandler) SaveOrder(rw http.ResponseWriter, r *http.Request) {
 		switch o.Status {
 		case "PROCESSED":
 			log.Println("PROCESSED")
-			h.userService.UpdateUserBalance(userLogin.Value, o.Accrual)
+			err = h.userService.UpdateUserBalance(userLogin.Value, o.Accrual)
+			if err != nil {
+				log.Println(err.Error())
+				return
+			}
 			return
 		default:
 			return
@@ -188,7 +192,11 @@ func (h *userHandler) SaveOrder(rw http.ResponseWriter, r *http.Request) {
 				switch o.Status {
 				case "PROCESSED":
 					log.Println("PROCESSED")
-					h.userService.UpdateUserBalance(userLogin.Value, o.Accrual)
+					err = h.userService.UpdateUserBalance(userLogin.Value, o.Accrual)
+					if err != nil {
+						log.Println(err.Error())
+						return
+					}
 					return
 				default:
 					return
@@ -243,7 +251,11 @@ func (h *userHandler) GetOrders(rw http.ResponseWriter, r *http.Request) {
 
 	rw.Header().Set("Content-Type", "application/json")
 	rw.WriteHeader(http.StatusOK)
-	rw.Write(resp)
+	_, err = rw.Write(resp)
+	if err != nil {
+		http.Error(rw, err.Error(), http.StatusBadRequest)
+		return
+	}
 }
 
 func (h *userHandler) GetBalance(rw http.ResponseWriter, r *http.Request) {
@@ -264,8 +276,11 @@ func (h *userHandler) GetBalance(rw http.ResponseWriter, r *http.Request) {
 	}
 	rw.Header().Set("Content-Type", "application/json")
 	rw.WriteHeader(http.StatusOK)
-	rw.Write(resp)
-
+	_, err = rw.Write(resp)
+	if err != nil {
+		http.Error(rw, err.Error(), http.StatusBadRequest)
+		return
+	}
 }
 
 func (h *userHandler) Withdraw(rw http.ResponseWriter, r *http.Request) {
@@ -326,7 +341,11 @@ func (h *userHandler) GetWithdrawals(rw http.ResponseWriter, r *http.Request) {
 	}
 	rw.Header().Set("Content-Type", "application/json")
 	rw.WriteHeader(http.StatusOK)
-	rw.Write(resp)
+	_, err = rw.Write(resp)
+	if err != nil {
+		http.Error(rw, err.Error(), http.StatusBadRequest)
+		return
+	}
 
 	log.Println("withdrawals handler done")
 

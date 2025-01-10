@@ -9,7 +9,10 @@ import (
 )
 
 func Run(serverAddr string) error {
-	godotenv.Load()
+	err := godotenv.Load()
+	if err != nil {
+		return err
+	}
 	config, err := config.NewConfig()
 	if err != nil {
 		return err

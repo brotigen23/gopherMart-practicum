@@ -22,7 +22,10 @@ func NewPostgresUserRepository(driver string, stringConnection string) (Reposito
 		return nil, err
 	}
 	migrator := database.MustGetNewMigrator(migrationPath)
-	migrator.ApplyMigrations(db)
+	err = migrator.ApplyMigrations(db)
+	if err != nil {
+		return nil, err
+	}
 	db, err = sql.Open(driver, stringConnection)
 	if err != nil {
 		return nil, err

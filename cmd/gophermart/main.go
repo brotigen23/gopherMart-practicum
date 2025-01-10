@@ -1,7 +1,15 @@
 package main
 
-import "github.com/brotigen23/gopherMart/internal/app"
+import (
+	"log"
+
+	"github.com/brotigen23/gopherMart/internal/app"
+)
 
 func main() {
-	app.Run(":8080")
+	err := app.Run(":8080")
+	if err != nil {
+		log.Println(err)
+		return
+	}
 }

@@ -16,7 +16,10 @@ type Config struct {
 func NewConfig() (*Config, error) {
 	// Read env
 	cfg := &Config{}
-	cleanenv.ReadEnv(cfg)
+	err := cleanenv.ReadEnv(cfg)
+	if err != nil {
+		return nil, err
+	}
 	// Read flags
 	a := flag.String("a", "", "server address")          // RUN_ADDRESS
 	d := flag.String("d", "", "database connect string") // DATABASE_URI
